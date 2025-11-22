@@ -42,7 +42,7 @@ void Test_WithIpEdit::finish_edit()
 }
 
 
-void Test_RemoveChars_0_0_0_0::remove_dot_by_backspace()
+void Test_0_0_0_0::backspace_0xI0x0x0()
 {
     start_edit(2);
     // 0.|0.0.0
@@ -54,7 +54,31 @@ void Test_RemoveChars_0_0_0_0::remove_dot_by_backspace()
     QCOMPARE(ip_edit_actually_pos(), ip_edit_expected_pos);
 }
 
-void Test_RemoveChars_0_0_0_0::remove_dot_by_delete()
+void Test_0_0_0_0::backspace_0x0xI0x0()
+{
+    start_edit(4);
+    // 0.0.|0.0
+    QTest::keyClick(ip_edit, backspace_key, kb_modifier, typing_delay);
+    // 0.0|.0.0
+    const QString ip_edit_expected_value = "0.0.0.0";
+    const int ip_edit_expected_pos = 3;
+    QCOMPARE(ip_edit_actually_value(), ip_edit_expected_value);
+    QCOMPARE(ip_edit_actually_pos(), ip_edit_expected_pos);
+}
+
+void Test_0_0_0_0::backspace_0x0x0xI0()
+{
+    start_edit(6);
+    // 0.0.0.|0
+    QTest::keyClick(ip_edit, backspace_key, kb_modifier, typing_delay);
+    // 0.0.0|.0
+    const QString ip_edit_expected_value = "0.0.0.0";
+    const int ip_edit_expected_pos = 5;
+    QCOMPARE(ip_edit_actually_value(), ip_edit_expected_value);
+    QCOMPARE(ip_edit_actually_pos(), ip_edit_expected_pos);
+}
+
+void Test_0_0_0_0::delete_0Ix0x0x0()
 {
     start_edit(1);
     // 0|.0.0.0
@@ -66,7 +90,31 @@ void Test_RemoveChars_0_0_0_0::remove_dot_by_delete()
     QCOMPARE(ip_edit_actually_pos(), ip_edit_expected_pos);
 }
 
-void Test_RemoveChars_0_0_0_0::clear_all_by_backspace(){
+void Test_0_0_0_0::delete_0x0Ix0x0()
+{
+    start_edit(3);
+    // 0.0|.0.0
+    QTest::keyClick(ip_edit, delete_key, kb_modifier, typing_delay);
+    // 0.0.|0.0
+    const QString ip_edit_expected_value = "0.0.0.0";
+    const int ip_edit_expected_pos = 4;
+    QCOMPARE(ip_edit_actually_value(), ip_edit_expected_value);
+    QCOMPARE(ip_edit_actually_pos(), ip_edit_expected_pos);
+}
+
+void Test_0_0_0_0::delete_0x0x0Ix0()
+{
+    start_edit(5);
+    // 0.0.0|.0
+    QTest::keyClick(ip_edit, delete_key, kb_modifier, typing_delay);
+    // 0.0.0.|0
+    const QString ip_edit_expected_value = "0.0.0.0";
+    const int ip_edit_expected_pos = 6;
+    QCOMPARE(ip_edit_actually_value(), ip_edit_expected_value);
+    QCOMPARE(ip_edit_actually_pos(), ip_edit_expected_pos);
+}
+
+void Test_0_0_0_0::clear_all_by_backspace(){
     start_edit();
         // 0.0.0.0|
     {
@@ -133,7 +181,7 @@ void Test_RemoveChars_0_0_0_0::clear_all_by_backspace(){
     }
 }
 
-void Test_RemoveChars_0_0_0_0::clear_all_by_delete()
+void Test_0_0_0_0::clear_all_by_delete()
 {
     start_edit(0);
         // |0.0.0.0
@@ -201,7 +249,7 @@ void Test_RemoveChars_0_0_0_0::clear_all_by_delete()
     }
 }
 
-void Test_EnterChars_0_0_0_0::enter_digit_after_dot()
+void Test_0_0_0_0::enter_1_to_0xI0x0x0()
 {
     start_edit(2);
     // "0.|0.0.0"
@@ -218,7 +266,7 @@ void Test_EnterChars_0_0_0_0::enter_digit_after_dot()
     QCOMPARE(ip_edit_actually_value(), ip_edit_expected_value);
 }
 
-void Test_EnterChars_0_0_0_0::enter_zero_before_zero_octet()
+void Test_0_0_0_0::enter_0_to_0xI0x0x0()
 {
     start_edit(2);
     // "0.|0.0.0"
@@ -235,7 +283,7 @@ void Test_EnterChars_0_0_0_0::enter_zero_before_zero_octet()
     QCOMPARE(ip_edit_actually_value(), ip_edit_expected_value);
 }
 
-void Test_EnterChars_0_0_0_0::enter_zero_after_zero_octet()
+void Test_0_0_0_0::enter_0_to_0x0Ix0x0()
 {
     start_edit(3);
     // "0.0|.0.0"
@@ -252,7 +300,75 @@ void Test_EnterChars_0_0_0_0::enter_zero_after_zero_octet()
     QCOMPARE(ip_edit_actually_value(), ip_edit_expected_value);
 }
 
-void Test_EnterChars_0_0_0_0::enter_digit_after_zero_octet()
+void Test_0_0_0_0::enter_0_to_I0x0x0x0()
+{
+    start_edit(0);
+    // "|0.0.0.0"
+
+    QTest::keyClick(ip_edit, Qt::Key_0, kb_modifier, typing_delay);
+    // "0|.0.0.0"
+    const QString ip_edit_expected_value = "0.0.0.0";
+    const int ip_edit_expected_pos = 1;
+    QCOMPARE(ip_edit_actually_value(), ip_edit_expected_value);
+    QCOMPARE(ip_edit_actually_pos(), ip_edit_expected_pos);
+
+    finish_edit();
+    // "0.0.0.0"
+    QCOMPARE(ip_edit_actually_value(), ip_edit_expected_value);
+}
+
+void Test_0_0_0_0::enter_0_to_0Ix0x0x0()
+{
+    start_edit(1);
+    // "0|.0.0.0"
+
+    QTest::keyClick(ip_edit, Qt::Key_0, kb_modifier, typing_delay);
+    // "0|.0.0.0"
+    const QString ip_edit_expected_value = "0.0.0.0";
+    const int ip_edit_expected_pos = 1;
+    QCOMPARE(ip_edit_actually_value(), ip_edit_expected_value);
+    QCOMPARE(ip_edit_actually_pos(), ip_edit_expected_pos);
+
+    finish_edit();
+    // "0.0.0.0"
+    QCOMPARE(ip_edit_actually_value(), ip_edit_expected_value);
+}
+
+void Test_0_0_0_0::enter_0_to_0x0x0xI0()
+{
+    start_edit(6);
+    // "0.0.0.|0"
+
+    QTest::keyClick(ip_edit, Qt::Key_0, kb_modifier, typing_delay);
+    // "0.0.0.0|"
+    const QString ip_edit_expected_value = "0.0.0.0";
+    const int ip_edit_expected_pos = 7;
+    QCOMPARE(ip_edit_actually_value(), ip_edit_expected_value);
+    QCOMPARE(ip_edit_actually_pos(), ip_edit_expected_pos);
+
+    finish_edit();
+    // "0.0.0.0"
+    QCOMPARE(ip_edit_actually_value(), ip_edit_expected_value);
+}
+
+void Test_0_0_0_0::enter_0_to_0x0x0x0I()
+{
+    start_edit(7);
+    // "0.0.0.0|"
+
+    QTest::keyClick(ip_edit, Qt::Key_0, kb_modifier, typing_delay);
+    // "0.0.0.0|"
+    const QString ip_edit_expected_value = "0.0.0.0";
+    const int ip_edit_expected_pos = 7;
+    QCOMPARE(ip_edit_actually_value(), ip_edit_expected_value);
+    QCOMPARE(ip_edit_actually_pos(), ip_edit_expected_pos);
+
+    finish_edit();
+    // "0.0.0.0"
+    QCOMPARE(ip_edit_actually_value(), ip_edit_expected_value);
+}
+
+void Test_0_0_0_0::enter_1_to_0x0Ix0x0()
 {
     start_edit(3);
     // "0.0|.0.0"
@@ -269,13 +385,81 @@ void Test_EnterChars_0_0_0_0::enter_digit_after_zero_octet()
     QCOMPARE(ip_edit_actually_value(), ip_edit_expected_value);
 }
 
-void Test_EnterChars_0_0_0_0::enter_dot_before_dot()
+void Test_0_0_0_0::enter_1_to_I0x0x0x0()
+{
+    start_edit(0);
+    // "|0.0.0.0"
+
+    QTest::keyClick(ip_edit, Qt::Key_1, kb_modifier, typing_delay);
+    // "1|0.0.0.0"
+    const QString ip_edit_expected_value = "10.0.0.0";
+    const int ip_edit_expected_pos = 1;
+    QCOMPARE(ip_edit_actually_value(), ip_edit_expected_value);
+    QCOMPARE(ip_edit_actually_pos(), ip_edit_expected_pos);
+
+    finish_edit();
+    // "10.0.0.0"
+    QCOMPARE(ip_edit_actually_value(), ip_edit_expected_value);
+}
+
+void Test_0_0_0_0::enter_1_to_0Ix0x0x0()
+{
+    start_edit(1);
+    // "0|.0.0.0"
+
+    QTest::keyClick(ip_edit, Qt::Key_1, kb_modifier, typing_delay);
+    // "1|.0.0.0"
+    const QString ip_edit_expected_value = "1.0.0.0";
+    const int ip_edit_expected_pos = 1;
+    QCOMPARE(ip_edit_actually_value(), ip_edit_expected_value);
+    QCOMPARE(ip_edit_actually_pos(), ip_edit_expected_pos);
+
+    finish_edit();
+    // "1.0.0.0"
+    QCOMPARE(ip_edit_actually_value(), ip_edit_expected_value);
+}
+
+void Test_0_0_0_0::enter_1_to_0x0x0xI0()
+{
+    start_edit(6);
+    // "0.0.0.|0"
+
+    QTest::keyClick(ip_edit, Qt::Key_1, kb_modifier, typing_delay);
+    // "0.0.0.1|0"
+    const QString ip_edit_expected_value = "0.0.0.10";
+    const int ip_edit_expected_pos = 7;
+    QCOMPARE(ip_edit_actually_value(), ip_edit_expected_value);
+    QCOMPARE(ip_edit_actually_pos(), ip_edit_expected_pos);
+
+    finish_edit();
+    // "0.0.0.10"
+    QCOMPARE(ip_edit_actually_value(), ip_edit_expected_value);
+}
+
+void Test_0_0_0_0::enter_1_to_0x0x0x0I()
+{
+    start_edit(7);
+    // "0.0.0.0|"
+
+    QTest::keyClick(ip_edit, Qt::Key_1, kb_modifier, typing_delay);
+    // "0.0.0.1|"
+    const QString ip_edit_expected_value = "0.0.0.1";
+    const int ip_edit_expected_pos = 7;
+    QCOMPARE(ip_edit_actually_value(), ip_edit_expected_value);
+    QCOMPARE(ip_edit_actually_pos(), ip_edit_expected_pos);
+
+    finish_edit();
+    // "0.0.0.1"
+    QCOMPARE(ip_edit_actually_value(), ip_edit_expected_value);
+}
+
+void Test_0_0_0_0::enter_dot_0x0Ix0x0()
 {
     start_edit(3);
     // "0.0|.0.0"
 
     QTest::keyClick(ip_edit, '.', kb_modifier, typing_delay);
-    // "0.1.|0.0"
+    // "0.0.|0.0"
     const QString ip_edit_expected_value = "0.0.0.0";
     const int ip_edit_expected_pos = 4;
     QCOMPARE(ip_edit_actually_value(), ip_edit_expected_value);
@@ -286,13 +470,13 @@ void Test_EnterChars_0_0_0_0::enter_dot_before_dot()
     QCOMPARE(ip_edit_actually_value(), ip_edit_expected_value);
 }
 
-void Test_EnterChars_0_0_0_0::enter_comma_before_dot()
+void Test_0_0_0_0::enter_comma_0x0Ix0x0()
 {
     start_edit(3);
     // "0.0|.0.0"
 
     QTest::keyClick(ip_edit, ',', kb_modifier, typing_delay);
-    // "0.1.|0.0"
+    // "0.0.|0.0"
     const QString ip_edit_expected_value = "0.0.0.0";
     const int ip_edit_expected_pos = 4;
     QCOMPARE(ip_edit_actually_value(), ip_edit_expected_value);
@@ -303,18 +487,149 @@ void Test_EnterChars_0_0_0_0::enter_comma_before_dot()
     QCOMPARE(ip_edit_actually_value(), ip_edit_expected_value);
 }
 
-void DirtyTestRunner::run_remove_tests()
+void Test_0_0_0_0::enter_space_0x0Ix0x0()
 {
-    {
-        auto test = Test_RemoveChars_0_0_0_0();
-        QTest::qExec(&test);
-    }
+    start_edit(3);
+    // "0.0|.0.0"
+
+    QTest::keyClick(ip_edit, Qt::Key_Space, kb_modifier, typing_delay);
+    // "0.0.|0.0"
+    const QString ip_edit_expected_value = "0.0.0.0";
+    const int ip_edit_expected_pos = 4;
+    QCOMPARE(ip_edit_actually_value(), ip_edit_expected_value);
+    QCOMPARE(ip_edit_actually_pos(), ip_edit_expected_pos);
+
+    finish_edit();
+    // "0.0.0.0"
+    QCOMPARE(ip_edit_actually_value(), ip_edit_expected_value);
 }
 
-void DirtyTestRunner::run_enter_tests()
+void Test_0_0_0_0::enter_dot_0Ix0x0x0()
+{
+    start_edit(1);
+    // "0|.0.0.0"
+
+    QTest::keyClick(ip_edit, '.', kb_modifier, typing_delay);
+    // "0.|0.0.0"
+    const QString ip_edit_expected_value = "0.0.0.0";
+    const int ip_edit_expected_pos = 2;
+    QCOMPARE(ip_edit_actually_value(), ip_edit_expected_value);
+    QCOMPARE(ip_edit_actually_pos(), ip_edit_expected_pos);
+
+    finish_edit();
+    // "0.0.0.0"
+    QCOMPARE(ip_edit_actually_value(), ip_edit_expected_value);
+}
+
+void Test_0_0_0_0::enter_comma_0Ix0x0x0()
+{
+    start_edit(1);
+    // "0|.0.0.0"
+
+    QTest::keyClick(ip_edit, ',', kb_modifier, typing_delay);
+    // "0.|0.0.0"
+    const QString ip_edit_expected_value = "0.0.0.0";
+    const int ip_edit_expected_pos = 2;
+    QCOMPARE(ip_edit_actually_value(), ip_edit_expected_value);
+    QCOMPARE(ip_edit_actually_pos(), ip_edit_expected_pos);
+
+    finish_edit();
+    // "0.0.0.0"
+    QCOMPARE(ip_edit_actually_value(), ip_edit_expected_value);
+}
+
+void Test_0_0_0_0::enter_space_0Ix0x0x0()
+{
+    start_edit(1);
+    // "0|.0.0.0"
+
+    QTest::keyClick(ip_edit, Qt::Key_Space, kb_modifier, typing_delay);
+    // "0.|0.0.0"
+    const QString ip_edit_expected_value = "0.0.0.0";
+    const int ip_edit_expected_pos = 2;
+    QCOMPARE(ip_edit_actually_value(), ip_edit_expected_value);
+    QCOMPARE(ip_edit_actually_pos(), ip_edit_expected_pos);
+
+    finish_edit();
+    // "0.0.0.0"
+    QCOMPARE(ip_edit_actually_value(), ip_edit_expected_value);
+}
+
+void Test_0_0_0_0::enter_dot_0x0x0Ix0()
+{
+    start_edit(5);
+    // "0.0.0|.0"
+
+    QTest::keyClick(ip_edit, '.', kb_modifier, typing_delay);
+    // "0.0.0.|0"
+    const QString ip_edit_expected_value = "0.0.0.0";
+    const int ip_edit_expected_pos = 6;
+    QCOMPARE(ip_edit_actually_value(), ip_edit_expected_value);
+    QCOMPARE(ip_edit_actually_pos(), ip_edit_expected_pos);
+
+    finish_edit();
+    // "0.0.0.0"
+    QCOMPARE(ip_edit_actually_value(), ip_edit_expected_value);
+}
+
+void Test_0_0_0_0::enter_comma_0x0x0Ix0()
+{
+    start_edit(5);
+    // "0.0.0|.0"
+
+    QTest::keyClick(ip_edit, ',', kb_modifier, typing_delay);
+    // "0.0.0.|0"
+    const QString ip_edit_expected_value = "0.0.0.0";
+    const int ip_edit_expected_pos = 6;
+    QCOMPARE(ip_edit_actually_value(), ip_edit_expected_value);
+    QCOMPARE(ip_edit_actually_pos(), ip_edit_expected_pos);
+
+    finish_edit();
+    // "0.0.0.0"
+    QCOMPARE(ip_edit_actually_value(), ip_edit_expected_value);
+}
+
+void Test_0_0_0_0::enter_space_0x0x0Ix0()
+{
+    start_edit(5);
+    // "0.0.0|.0"
+
+    QTest::keyClick(ip_edit, Qt::Key_Space, kb_modifier, typing_delay);
+    // "0.0.0.|0"
+    const QString ip_edit_expected_value = "0.0.0.0";
+    const int ip_edit_expected_pos = 6;
+    QCOMPARE(ip_edit_actually_value(), ip_edit_expected_value);
+    QCOMPARE(ip_edit_actually_pos(), ip_edit_expected_pos);
+
+    finish_edit();
+    // "0.0.0.0"
+    QCOMPARE(ip_edit_actually_value(), ip_edit_expected_value);
+}
+
+void DirtyTestRunner::run_all()
 {
     {
-        auto test = Test_EnterChars_0_0_0_0();
+        auto test = Test_0_0_0_0();
+        QTest::qExec(&test);
+    }
+    {
+        auto test = Test_1_2_3_4();
+        QTest::qExec(&test);
+    }
+    {
+        auto test = Test_11_22_33_44();
+        QTest::qExec(&test);
+    }
+    {
+        auto test = Test_123_123_123_123();
+        QTest::qExec(&test);
+    }
+    {
+        auto test = Test_255_255_255_255();
+        QTest::qExec(&test);
+    }
+    {
+        auto test = Test_123_45_0_255();
         QTest::qExec(&test);
     }
 }
