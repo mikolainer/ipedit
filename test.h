@@ -352,56 +352,223 @@ private slots:
         // enter 1 around zero octet
         QTest::newRow("enter 1 to |0.0.0.0")
             << "0.0.0.0" << 0 // start
-            << false << Qt::Key_1 << '0'
+            << false << Qt::Key_1 << '1'
             << "10.0.0.0" << 1 // after click
             << "10.0.0.0"; // after finish
 
         QTest::newRow("enter 1 to 0|.0.0.0")
             << "0.0.0.0" << 1 // start
-            << false << Qt::Key_1 << '0'
+            << false << Qt::Key_1 << '1'
             << "1.0.0.0" << 1 // after click
             << "1.0.0.0"; // after finish
 
         QTest::newRow("enter 1 to 0.|0.0.0")
             << "0.0.0.0" << 2 // start
-            << false << Qt::Key_1 << '0'
+            << false << Qt::Key_1 << '1'
             << "0.10.0.0" << 3 // after click
             << "0.10.0.0"; // after finish
 
         QTest::newRow("enter 1 to 0.0|.0.0")
             << "0.0.0.0" << 3 // start
-            << false << Qt::Key_1 << '0'
+            << false << Qt::Key_1 << '1'
             << "0.1.0.0" << 3 // after click
             << "0.1.0.0"; // after finish
 
         QTest::newRow("enter 1 to 0.0.|0.0")
             << "0.0.0.0" << 4 // start
-            << false << Qt::Key_1 << '0'
+            << false << Qt::Key_1 << '1'
             << "0.0.10.0" << 5 // after click
             << "0.0.10.0"; // after finish
 
         QTest::newRow("enter 1 to 0.0.0|.0")
             << "0.0.0.0" << 5 // start
-            << false << Qt::Key_1 << '0'
+            << false << Qt::Key_1 << '1'
             << "0.0.1.0" << 5 // after click
             << "0.0.1.0"; // after finish
 
         QTest::newRow("enter 1 to 0.0.0.|0")
             << "0.0.0.0" << 6 // start
-            << false << Qt::Key_1 << '0'
+            << false << Qt::Key_1 << '1'
             << "0.0.0.10" << 7 // after click
             << "0.0.0.10"; // after finish
 
         QTest::newRow("enter 1 to 0.0.0.0|")
             << "0.0.0.0" << 7 // start
-            << false << Qt::Key_1 << '0'
+            << false << Qt::Key_1 << '1'
             << "0.0.0.1" << 7 // after click
             << "0.0.0.1"; // after finish
 
         // enter 1 around two digit octet
+        QTest::newRow("enter 1 to |12.12.12.12")
+            << "12.12.12.12" << 0 // start
+            << false << Qt::Key_1 << '1'
+            << "112.12.12.12" << 1 // after click
+            << "112.12.12.12"; // after finish
+
+        QTest::newRow("enter 1 to 12|.12.12.12")
+            << "12.12.12.12" << 2 // start
+            << false << Qt::Key_1 << '1'
+            << "121.12.12.12" << 3 // after click
+            << "121.12.12.12"; // after finish
+
+        QTest::newRow("enter 1 to 12.|12.12.12")
+            << "12.12.12.12" << 3 // start
+            << false << Qt::Key_1 << '1'
+            << "12.112.12.12" << 4 // after click
+            << "12.112.12.12"; // after finish
+
+        QTest::newRow("enter 1 to 12.12|.12.12")
+            << "12.12.12.12" << 5 // start
+            << false << Qt::Key_1 << '1'
+            << "12.121.12.12" << 6 // after click
+            << "12.121.12.12"; // after finish
+
+        QTest::newRow("enter 1 to 12.12.|12.12")
+            << "12.12.12.12" << 6 // start
+            << false << Qt::Key_1 << '1'
+            << "12.12.112.12" << 7 // after click
+            << "12.12.112.12"; // after finish
+
+        QTest::newRow("enter 1 to 12.12.12|.12")
+            << "12.12.12.12" << 8 // start
+            << false << Qt::Key_1 << '1'
+            << "12.12.121.12" << 9 // after click
+            << "12.12.121.12"; // after finish
+
+        QTest::newRow("enter 1 to 12.12.12.|12")
+            << "12.12.12.12" << 9 // start
+            << false << Qt::Key_1 << '1'
+            << "12.12.12.112" << 10 // after click
+            << "12.12.12.112"; // after finish
+
+        QTest::newRow("enter 1 to 12.12.12.12|")
+            << "12.12.12.12" << 11 // start
+            << false << Qt::Key_1 << '1'
+            << "12.12.12.121" << 12 // after click
+            << "12.12.12.121"; // after finish
+
         // enter 1 to mid of two digit octet
+        QTest::newRow("enter 1 to 1|2.12.12.12")
+            << "12.12.12.12" << 1 // start
+            << false << Qt::Key_1 << '1'
+            << "112.12.12.12" << 2 // after click
+            << "112.12.12.12"; // after finish
+
+        QTest::newRow("enter 1 to 12.1|2.12.12")
+            << "12.12.12.12" << 4 // start
+            << false << Qt::Key_1 << '1'
+            << "12.112.12.12" << 5 // after click
+            << "12.112.12.12"; // after finish
+
+        QTest::newRow("enter 1 to 12.12.1|2.12")
+            << "12.12.12.12" << 7 // start
+            << false << Qt::Key_1 << '1'
+            << "12.12.112.12" << 8 // after click
+            << "12.12.112.12"; // after finish
+
+        QTest::newRow("enter 1 to 12.12.12.1|2")
+            << "12.12.12.12" << 10 // start
+            << false << Qt::Key_1 << '1'
+            << "12.12.12.112" << 11 // after click
+            << "12.12.12.112"; // after finish
+
         // enter 1 around three digit octet
+        QTest::newRow("enter 1 to |100.100.100.100")
+            << "100.100.100.100" << 0 // start
+            << false << Qt::Key_1 << '1'
+            << "100.100.100.100" << 0 // after click
+            << "100.100.100.100"; // after finish
+
+        QTest::newRow("enter 1 to 100|.100.100.100")
+            << "100.100.100.100" << 3 // start
+            << false << Qt::Key_1 << '1'
+            << "100.100.100.100" << 3 // after click
+            << "100.100.100.100"; // after finish
+
+        QTest::newRow("enter 1 to 100.|100.100.100")
+            << "100.100.100.100" << 4 // start
+            << false << Qt::Key_1 << '1'
+            << "100.100.100.100" << 4 // after click
+            << "100.100.100.100"; // after finish
+
+        QTest::newRow("enter 1 to 100.100|.100.100")
+            << "100.100.100.100" << 7 // start
+            << false << Qt::Key_1 << '1'
+            << "100.100.100.100" << 7 // after click
+            << "100.100.100.100"; // after finish
+
+        QTest::newRow("enter 1 to 100.100.|100.100")
+            << "100.100.100.100" << 8 // start
+            << false << Qt::Key_1 << '1'
+            << "100.100.100.100" << 8 // after click
+            << "100.100.100.100"; // after finish
+
+        QTest::newRow("enter 1 to 100.100.100|.100")
+            << "100.100.100.100" << 11 // start
+            << false << Qt::Key_1 << '1'
+            << "100.100.100.100" << 11 // after click
+            << "100.100.100.100"; // after finish
+
+        QTest::newRow("enter 1 to 100.100.100.|100")
+            << "100.100.100.100" << 12 // start
+            << false << Qt::Key_1 << '1'
+            << "100.100.100.100" << 12 // after click
+            << "100.100.100.100"; // after finish
+
+        QTest::newRow("enter 1 to 100.100.100.100|")
+            << "100.100.100.100" << 15 // start
+            << false << Qt::Key_1 << '1'
+            << "100.100.100.100" << 15 // after click
+            << "100.100.100.100"; // after finish
+
         // enter 1 to mid of three digit octet
+        QTest::newRow("enter 1 to 1|00.100.100.100")
+            << "100.100.100.100" << 1 // start
+            << false << Qt::Key_1 << '1'
+            << "100.100.100.100" << 1 // after click
+            << "100.100.100.100"; // after finish
+
+        QTest::newRow("enter 1 to 10|0.100.100.100")
+            << "100.100.100.100" << 2 // start
+            << false << Qt::Key_1 << '1'
+            << "100.100.100.100" << 2 // after click
+            << "100.100.100.100"; // after finish
+
+        QTest::newRow("enter 1 to 100.1|00.100.100")
+            << "100.100.100.100" << 5 // start
+            << false << Qt::Key_1 << '1'
+            << "100.100.100.100" << 5 // after click
+            << "100.100.100.100"; // after finish
+
+        QTest::newRow("enter 1 to 100.10|0.100.100")
+            << "100.100.100.100" << 6 // start
+            << false << Qt::Key_1 << '1'
+            << "100.100.100.100" << 6 // after click
+            << "100.100.100.100"; // after finish
+
+        QTest::newRow("enter 1 to 100.100.1|00.100")
+            << "100.100.100.100" << 9 // start
+            << false << Qt::Key_1 << '1'
+            << "100.100.100.100" << 9 // after click
+            << "100.100.100.100"; // after finish
+
+        QTest::newRow("enter 1 to 100.100.10|0.100")
+            << "100.100.100.100" << 10 // start
+            << false << Qt::Key_1 << '1'
+            << "100.100.100.100" << 10 // after click
+            << "100.100.100.100"; // after finish
+
+        QTest::newRow("enter 1 to 100.100.100.1|00")
+            << "100.100.100.100" << 13 // start
+            << false << Qt::Key_1 << '1'
+            << "100.100.100.100" << 13 // after click
+            << "100.100.100.100"; // after finish
+
+        QTest::newRow("enter 1 to 100.100.100.10|0")
+            << "100.100.100.100" << 14 // start
+            << false << Qt::Key_1 << '1'
+            << "100.100.100.100" << 14 // after click
+            << "100.100.100.100"; // after finish
 
         // === max octet value ===
         // enter max valid octet value
