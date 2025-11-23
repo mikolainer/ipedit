@@ -1,6 +1,7 @@
 #ifndef TEST_H
 #define TEST_H
 
+#include <memory>
 #include <QTest>
 #include <QLineEdit>
 
@@ -16,387 +17,560 @@ public:
     constexpr static const int invalid = -1;
 };
 
-class Test_WithIpEdit : public QObject
+class LineEditWithIpValidatorTest : public QLineEdit
 { Q_OBJECT
-public:
     constexpr static const int typing_delay = 0;
     constexpr static const Qt::KeyboardModifiers kb_modifier = Qt::NoModifier;
+
+public:
+    LineEditWithIpValidatorTest(const QString& text, QWidget* parent = nullptr);
+
+    void start_edit(int cursor_pos = CursorPos::invalid);
+    void finish_edit();
+
+    void check(const QString& expected_text, int expected_pos) {
+        check(expected_text);
+        check(expected_pos);
+    };
+    void check(const QString& expected_text){
+        QCOMPARE(text(), expected_text);
+    };
+    void check(int expected_pos){
+        QCOMPARE(cursorPosition(), expected_pos);
+    }
+
+    void click(char key){
+        QTest::keyClick(this, key, kb_modifier, typing_delay);
+    }
+    void click(Qt::Key key){
+        QTest::keyClick(this, key, kb_modifier, typing_delay);
+    }
+};
+
+class Test_IpEdit : public QObject
+{ Q_OBJECT
     constexpr static const Qt::Key backspace_key = Qt::Key_Backspace;
     constexpr static const Qt::Key delete_key = Qt::Key_Delete;
     constexpr static const Qt::Key rarrow_key = Qt::Key_Right;
     constexpr static const Qt::Key larrow_key = Qt::Key_Left;
 
 public:
-    Test_WithIpEdit(QObject* parent = nullptr)
-        : Test_WithIpEdit(default_text_to_init_editor, parent)
-    {}
-
-    Test_WithIpEdit(const QString& text_to_init_editor, QObject* parent = nullptr)
-        : QObject(parent)
-        , m_text_to_init_editor(text_to_init_editor)
-    {};
+    Test_IpEdit(QObject* parent = nullptr) : QObject(parent) {}
 
 private slots:
-    void init();
-    void cleanup();
-    void init_ip_edit();
-
-protected:
-    QString ip_edit_actually_value();
-    int ip_edit_actually_pos();
-
-    void start_edit(int cursor_pos = CursorPos::invalid);
-    void finish_edit();
-
-public:
-    constexpr static const char* default_text_to_init_editor{"0.0.0.0"};
-
-protected:
-    QLineEdit* ip_edit;
-
-private:
-    const QString m_text_to_init_editor;
-};
-
-
-class Test_0_0_0_0 : public Test_WithIpEdit
-{ Q_OBJECT
-public:
-    Test_0_0_0_0(QObject* parent = nullptr);
-
-private slots:
-// insert zero around zero octet
-    void enter_0_to_I0x0x0x0();
-    void enter_0_to_0Ix0x0x0();
-    void enter_0_to_0xI0x0x0();
-    void enter_0_to_0x0Ix0x0();
-    void enter_0_to_0x0x0xI0();
-    void enter_0_to_0x0x0x0I();
-
-// insert non zero digit around zero octet
-    void enter_1_to_I0x0x0x0();
-    void enter_1_to_0Ix0x0x0();
-    void enter_1_to_0xI0x0x0();
-    void enter_1_to_0x0Ix0x0();
-    void enter_1_to_0x0x0xI0();
-    void enter_1_to_0x0x0x0I();
-
-// insert special char to make zero octet
-    void enter_dot_I0x0x0x0();
-    void enter_dot_0xI0x0x0();
-    void enter_dot_0x0xI0x0();
-    void enter_dot_0x0x0xI0();
-
-    void enter_comma_I0x0x0x0();
-    void enter_comma_0xI0x0x0();
-    void enter_comma_0x0xI0x0();
-    void enter_comma_0x0x0xI0();
-
-    void enter_space_I0x0x0x0();
-    void enter_space_0xI0x0x0();
-    void enter_space_0x0xI0x0();
-    void enter_space_0x0x0xI0();
-
-
-// insert special char to jump over separator
-    void enter_dot_0Ix0x0x0();
-    void enter_dot_0x0Ix0x0();
-    void enter_dot_0x0x0Ix0();
-
-    void enter_comma_0Ix0x0x0();
-    void enter_comma_0x0Ix0x0();
-    void enter_comma_0x0x0Ix0();
-
-    void enter_space_0Ix0x0x0();
-    void enter_space_0x0Ix0x0();
-    void enter_space_0x0x0Ix0();
-
-// remove dots
-    void backspace_0xI0x0x0();
-    void backspace_0x0xI0x0();
-    void backspace_0x0x0xI0();
-
-    void delete_0Ix0x0x0();
-    void delete_0x0Ix0x0();
-    void delete_0x0x0Ix0();
-
-// remove zero octet
-    void backspace_0Ix0x0x0();
-    void backspace_0x0Ix0x0();
-    void backspace_0x0x0Ix0();
-    void backspace_0x0x0x0I();
-
-    void delete_I0x0x0x0();
-    void delete_0xI0x0x0();
-    void delete_0x0xI0x0();
-    void delete_0x0x0xI0();
-
-// remove all
-    void clear_all_by_backspace();
-    void clear_all_by_delete();
-};
-
-class Test_1_2_3_4 : public Test_WithIpEdit
-{ Q_OBJECT
-public:
-    Test_1_2_3_4(QObject* parent = nullptr)
-        : Test_WithIpEdit("1.2.3.4", parent)
-    {}
-
-private slots:
-// insert zero around non zero octet
-    void enter_0_to_I1x2x3x4();
-    void enter_0_to_1Ix2x3x4();
-    void enter_0_to_1xI2x3x4();
-    void enter_0_to_1x2Ix3x4();
-    void enter_0_to_1x2x3xI4();
-    void enter_0_to_1x2x3x4I();
-
-// insert non zero digit around non zero octet
-    void enter_1_to_I1x2x3x4();
-    void enter_1_to_1Ix2x3x4();
-    void enter_1_to_1xI2x3x4();
-    void enter_1_to_1x2Ix3x4();
-    void enter_1_to_1x2x3xI4();
-    void enter_1_to_1x2x3x4I();
-
-// insert special char to jump over separator
-    void enter_dot_1Ix2x3x4();
-    void enter_dot_1x2Ix3x4();
-    void enter_dot_1x2x3Ix4();
-
-    void enter_comma_1Ix2x3x4();
-    void enter_comma_1x2Ix3x4();
-    void enter_comma_1x2x3Ix4();
-
-    void enter_space_1Ix2x3x4();
-    void enter_space_1x2Ix3x4();
-    void enter_space_1x2x3Ix4();
-
-// insert special char to make zero octet
-    void enter_dot_I1x2x3x4();
-    void enter_dot_1xI2x3x4();
-    void enter_dot_1x2xI3x4();
-    void enter_dot_1x2x3xI4();
-
-    void enter_comma_I1x2x3x4();
-    void enter_comma_1xI2x3x4();
-    void enter_comma_1x2xI3x4();
-    void enter_comma_1x2x3xI4();
-
-    void enter_space_I1x2x3x4();
-    void enter_space_1xI2x3x4();
-    void enter_space_1x2xI3x4();
-    void enter_space_1x2x3xI4();
-
-// remove dots
-    void backspace_1xI2x3x4();
-    void backspace_1x2xI3x4();
-    void backspace_1x2x3xI4();
-
-    void delete_1Ix2x3x4();
-    void delete_1x2Ix3x4();
-    void delete_1x2x3Ix4();
-
-// remove one digit non zero octet
-    void backspace_1Ix2x3x4();
-    void backspace_1x2Ix3x4();
-    void backspace_1x2x3Ix4();
-    void backspace_1x2x3x4I();
-
-    void delete_I1x2x3x4();
-    void delete_1xI2x3x4();
-    void delete_1x2xI3x4();
-    void delete_1x2x3xI4();
-
-// remove all
-    void clear_all_by_backspace();
-    void clear_all_by_delete();
-};
-
-class Test_11_22_33_44 : public Test_WithIpEdit
-{ Q_OBJECT
-public:
-    Test_11_22_33_44(QObject* parent = nullptr)
-        : Test_WithIpEdit("11.22.33.44", parent)
-    {}
-
-private slots:
-    // insert zero around two digits octet
-    void enter_0_to_I11x22x33x44();
-    void enter_0_to_11Ix22x33x44();
-    void enter_0_to_11xI22x33x44();
-    void enter_0_to_11x22Ix33x44();
-
-    // insert zero to mid of two digits octet
-    void enter_0_to_1I1x22x33x44();
-    void enter_0_to_11x2I2x33x44();
-
-    // insert non zero digit around two digits octet
-    void enter_1_to_I11x22x33x44();
-    void enter_1_to_11Ix22x33x44();
-    void enter_1_to_11xI22x33x44();
-    void enter_1_to_11x22Ix33x44();
-
-    // insert non zero digit to mid of two digits octet
-    void enter_1_to_1I1x22x33x44();
-    void enter_1_to_11x2I2x33x44();
-
-    // insert to overflow octet value
-    void enter_3_to_11x22xI33x44();
-    void enter_0_to_11x22x3I3x44();
-    void enter_0_to_11x22x33Ix44();
-    void enter_3_to_11x22x33xI44();
-    void enter_0_to_11x22x33x4I4();
-    void enter_0_to_11x22x33x44I();
-
-    // insert special char to jump over separator
-    void enter_dot_to_11Ix22x33x44();
-    void enter_dot_to_11x22Ix33x44();
-    void enter_dot_to_11x22x33Ix44();
-
-    void enter_comma_to_11Ix22x33x44();
-    void enter_comma_to_11x22Ix33x44();
-    void enter_comma_to_11x22x33Ix44();
-
-    void enter_space_to_11Ix22x33x44();
-    void enter_space_to_11x22Ix33x44();
-    void enter_space_to_11x22x33Ix44();
-
-    // insert special char to make zero octet
-    void enter_dot_to_I11x22x33x44();
-    void enter_dot_to_11xI22x33x44();
-    void enter_dot_to_11x22xI33x44();
-    void enter_dot_to_11x22x33xI44();
-
-    void enter_comma_to_I11x22x33x44();
-    void enter_comma_to_11xI22x33x44();
-    void enter_comma_to_11x22xI33x44();
-    void enter_comma_to_11x22x33xI44();
-
-    void enter_space_to_I11x22x33x44();
-    void enter_space_to_11xI22x33x44();
-    void enter_space_to_11x22xI33x44();
-    void enter_space_to_11x22x33xI44();
-
-    // insert special char to cut end of octet
-    void enter_dot_to_1I1x22x33x44();
-    void enter_dot_to_11x2I2x33x44();
-    void enter_dot_to_11x22x3I3x44();
-    void enter_dot_to_11x22x33x4I4();
-
-    void enter_comma_to_1I1x22x33x44();
-    void enter_comma_to_11x2I2x33x44();
-    void enter_comma_to_11x22x3I3x44();
-    void enter_comma_to_11x22x33x4I4();
-
-    void enter_space_to_1I1x22x33x44();
-    void enter_space_to_11x2I2x33x44();
-    void enter_space_to_11x22x3I3x44();
-    void enter_space_to_11x22x33x4I4();
-
-    // remove dots
-    void backspace_11xI22x33x44();
-    void backspace_11x22xI33x44();
-    void backspace_11x22x33xI44();
-
-    void delete_11Ix22x33x44();
-    void delete_11x22Ix33x44();
-    void delete_11x22x33Ix44();
-
-    // remove all
-    void clear_all_by_backspace();
-    void clear_all_by_delete();
-};
-
-class Test_44_33_22_11 : public Test_WithIpEdit
-{ Q_OBJECT
-public:
-    Test_44_33_22_11(QObject* parent = nullptr)
-        : Test_WithIpEdit("44.33.22.11", parent)
-    {}
-
-private slots:
-// insert zero around two digits octet
-    void enter_0_to_44x33xI22x11();
-    void enter_0_to_44x33x22Ix11();
-    void enter_0_to_44x33x22xI11();
-    void enter_0_to_44x33x22x11I();
-
-// insert zero to mid of two digits octet
-    void enter_0_to_44x33x2I2x11();
-    void enter_0_to_44x33x22x1I1();
-
-// insert non zero digit around two digits octet
-    void enter_1_to_44x33xI22x11();
-    void enter_1_to_44x33x22Ix11();
-    void enter_1_to_44x33x22xI11();
-    void enter_1_to_44x33x22x11I();
-
-// insert non zero digit to mid of two digits octet
-    void enter_1_to_44x33x2I2x11();
-    void enter_1_to_44x33x22x1I1();
-
-// insert to overflow octet value
-    void enter_3_to_I44x33x22x11();
-    void enter_0_to_4I4x33x22x11();
-    void enter_0_to_44Ix33x22x11();
-    void enter_3_to_44xI33x22x11();
-    void enter_0_to_44x3I3x22x11();
-    void enter_0_to_44x33Ix22x11();
-
-// remove all
-    void clear_all_by_backspace();
-    void clear_all_by_delete();
-};
-
-class Test_123_123_123_123 : public Test_WithIpEdit
-{ Q_OBJECT
-public:
-    Test_123_123_123_123(QObject* parent = nullptr)
-        : Test_WithIpEdit("123.123.123.123", parent)
-    {}
-
-private slots:
-// insert zero around full octet
-// insert non zero digit around full octet
-// insert special char to jump over separator
-// insert special char to make zero octet
-// insert special char to cut end of octet
-// remove dots
-// remove all
-};
-
-class Test_255_255_255_255 : public Test_WithIpEdit
-{ Q_OBJECT
-public:
-    Test_255_255_255_255(QObject* parent = nullptr)
-        : Test_WithIpEdit("255.255.255.255", parent)
-    {}
-
-private slots:
-// insert zero around max octet
-// insert non zero digit around max octet
-// insert special char to jump over separator
-// insert special char to make zero octet
-// insert special char to cut end of octet
-// remove all
-};
-
-class Test_123_45_0_255 : public Test_WithIpEdit
-{ Q_OBJECT
-public:
-    Test_123_45_0_255(QObject* parent = nullptr)
-        : Test_WithIpEdit("123.45.0.255", parent)
-    {}
-
-private slots:
-// move cursor by arrows
-// move cursor by arrows and enter
-// move cursor by arrows and remove
-// insert from clipboard
-// select and enter
-// select and insert from clipboard
+    void oneClick_data(){
+        QTest::addColumn<const QString>("start_value");
+        QTest::addColumn<const int>("start_pos");
+
+        QTest::addColumn<const bool>("is_key_char");
+        QTest::addColumn<const Qt::Key>("click_key");
+        QTest::addColumn<const char>("click_char");
+
+        QTest::addColumn<const QString>("ip_edit_expected_value");
+        QTest::addColumn<const int>("ip_edit_expected_pos");
+
+        QTest::addColumn<const QString>("ip_edit_finish_expected_value");
+
+//        QTest::newRow("test name")
+//            << "start_value" << start_pos
+//            << is_key_char << click_key << 'click_char'
+//            << "ip_edit_expected_value" << ip_edit_expected_pos
+//            << "ip_edit_finish_expected_value"
+
+        // === enter zero ===
+        // enter 0 around zero octets
+        QTest::newRow("enter 0 to |0.0.0.0")
+            << "0.0.0.0" << 0 // start
+            << false << Qt::Key_0 << '0'
+            << "0.0.0.0" << 1 // after click
+            << "0.0.0.0"; // after finish
+
+        QTest::newRow("enter 0 to 0|.0.0.0")
+            << "0.0.0.0" << 1 // start
+            << false << Qt::Key_0 << '0'
+            << "0.0.0.0" << 1 // after click
+            << "0.0.0.0"; // after finish
+
+        QTest::newRow("enter 0 to 0.|0.0.0")
+            << "0.0.0.0" << 2 // start
+            << false << Qt::Key_0 << '0'
+            << "0.0.0.0" << 3 // after click
+            << "0.0.0.0"; // after finish
+
+        QTest::newRow("enter 0 to 0.0|.0.0")
+            << "0.0.0.0" << 3 // start
+            << false << Qt::Key_0 << '0'
+            << "0.0.0.0" << 3 // after click
+            << "0.0.0.0"; // after finish
+
+        QTest::newRow("enter 0 to 0.0.|0.0")
+            << "0.0.0.0" << 4 // start
+            << false << Qt::Key_0 << '0'
+            << "0.0.0.0" << 5 // after click
+            << "0.0.0.0"; // after finish
+
+        QTest::newRow("enter 0 to 0.0.0|.0")
+            << "0.0.0.0" << 5 // start
+            << false << Qt::Key_0 << '0'
+            << "0.0.0.0" << 5 // after click
+            << "0.0.0.0"; // after finish
+
+        QTest::newRow("enter 0 to 0.0.0.|0")
+            << "0.0.0.0" << 6 // start
+            << false << Qt::Key_0 << '0'
+            << "0.0.0.0" << 7 // after click
+            << "0.0.0.0"; // after finish
+
+        QTest::newRow("enter 0 to 0.0.0.0|")
+            << "0.0.0.0" << 7 // start
+            << false << Qt::Key_0 << '0'
+            << "0.0.0.0" << 7 // after click
+            << "0.0.0.0"; // after finish
+
+        // enter 0 around one digit octets
+        QTest::newRow("enter 0 to |1.1.1.1")
+            << "1.1.1.1" << 0 // start
+            << false << Qt::Key_0 << '0'
+            << "1.1.1.1" << 0 // after click
+            << "1.1.1.1"; // after finish
+
+        QTest::newRow("enter 0 to 1|.1.1.1")
+            << "1.1.1.1" << 1 // start
+            << false << Qt::Key_0 << '0'
+            << "10.1.1.1" << 2 // after click
+            << "10.1.1.1"; // after finish
+
+        QTest::newRow("enter 0 to 1.|1.1.1")
+            << "1.1.1.1" << 2 // start
+            << false << Qt::Key_0 << '0'
+            << "1.1.1.1" << 2 // after click
+            << "1.1.1.1"; // after finish
+
+        QTest::newRow("enter 0 to 1.1|.1.1")
+            << "1.1.1.1" << 3 // start
+            << false << Qt::Key_0 << '0'
+            << "1.10.1.1" << 4 // after click
+            << "1.10.1.1"; // after finish
+
+        QTest::newRow("enter 0 to 1.1.|1.1")
+            << "1.1.1.1" << 4 // start
+            << false << Qt::Key_0 << '0'
+            << "1.1.1.1" << 4 // after click
+            << "1.1.1.1"; // after finish
+
+        QTest::newRow("enter 0 to 1.1.1|.1")
+            << "1.1.1.1" << 5 // start
+            << false << Qt::Key_0 << '0'
+            << "1.1.10.1" << 6 // after click
+            << "1.1.10.1"; // after finish
+
+        QTest::newRow("enter 0 to 1.1.1.|1")
+            << "1.1.1.1" << 6 // start
+            << false << Qt::Key_0 << '0'
+            << "1.1.1.1" << 6 // after click
+            << "1.1.1.1"; // after finish
+
+        QTest::newRow("enter 0 to 1.1.1.1|")
+            << "1.1.1.1" << 7 // start
+            << false << Qt::Key_0 << '0'
+            << "1.1.1.10" << 8 // after click
+            << "1.1.1.10"; // after finish
+
+        // enter 0 around two digit octet
+        QTest::newRow("enter 0 to 1.1.1.1|")
+            << "1.1.1.1" << 7 // start
+            << false << Qt::Key_0 << '0'
+            << "1.1.1.10" << 8 // after click
+            << "1.1.1.10"; // after finish
+
+        // enter 0 to mid of two digit octet
+        // enter 0 around three digit octet
+        // enter 0 to mid of three digit octet
+
+        // === enter non zero digit ===
+        // enter 1 around zero octet
+        // enter 1 around two digit octet
+        // enter 1 to mid of two digit octet
+        // enter 1 around three digit octet
+        // enter 1 to mid of three digit octet
+
+        // === max octet value ===
+        // enter max valid octet value
+        // enter overflowed octet value
+
+        // === special chars
+        // before dot
+        // after dot
+        // between digits
+
+        // === enter to int ===
+        // enter zero to int value
+        // enter non zero digit to int value
+        // enter special char to int value
+
+        // === max int value ===
+        // enter max valid int value
+        // enter overflowed int value
+
+        // === remove by delete ===
+        // rermove dot
+        QTest::newRow("delete in 0|.0.0.0")
+            << "0.0.0.0" << 1 // start
+            << false << delete_key << '>'
+            << "0.0.0.0" << 2 // after click
+            << "0.0.0.0"; // after finish
+
+        QTest::newRow("delete in 0.0|.0.0")
+            << "0.0.0.0" << 3 // start
+            << false << delete_key << '>'
+            << "0.0.0.0" << 4 // after click
+            << "0.0.0.0"; // after finish
+
+        QTest::newRow("delete in 0.0.0|.0")
+            << "0.0.0.0" << 5 // start
+            << false << delete_key << '>'
+            << "0.0.0.0" << 6 // after click
+            << "0.0.0.0"; // after finish
+
+        QTest::newRow("delete in 1|.1.1.1")
+            << "1.1.1.1" << 1 // start
+            << false << delete_key << '>'
+            << "1.1.1.1" << 2 // after click
+            << "1.1.1.1"; // after finish
+
+        QTest::newRow("delete in 1.1|.1.1")
+            << "1.1.1.1" << 3 // start
+            << false << delete_key << '>'
+            << "1.1.1.1" << 4 // after click
+            << "1.1.1.1"; // after finish
+
+        QTest::newRow("delete in 1.1.1|.1")
+            << "1.1.1.1" << 5 // start
+            << false << delete_key << '>'
+            << "1.1.1.1" << 6 // after click
+            << "1.1.1.1"; // after finish
+
+        QTest::newRow("delete in 12|.12.12.12")
+            << "12.12.12.12" << 2 // start
+            << false << delete_key << '>'
+            << "12.12.12.12" << 3 // after click
+            << "12.12.12.12"; // after finish
+
+        QTest::newRow("delete in 12.12|.12.12")
+            << "12.12.12.12" << 5 // start
+            << false << delete_key << '>'
+            << "12.12.12.12" << 6 // after click
+            << "12.12.12.12"; // after finish
+
+        QTest::newRow("delete in 12.12.12|.12")
+            << "12.12.12.12" << 8 // start
+            << false << delete_key << '>'
+            << "12.12.12.12" << 9 // after click
+            << "12.12.12.12"; // after finish
+
+        QTest::newRow("delete in 123|.123.123.123")
+            << "123.123.123.123" << 3 // start
+            << false << delete_key << '>'
+            << "123.123.123.123" << 4 // after click
+            << "123.123.123.123"; // after finish
+
+        QTest::newRow("delete in 123.123|.123.123")
+            << "123.123.123.123" << 7 // start
+            << false << delete_key << '>'
+            << "123.123.123.123" << 8 // after click
+            << "123.123.123.123"; // after finish
+
+        QTest::newRow("delete in 123.123.123|.123")
+            << "123.123.123.123" << 11 // start
+            << false << delete_key << '>'
+            << "123.123.123.123" << 12 // after click
+            << "123.123.123.123"; // after finish
+
+        QTest::newRow("delete in |...0")
+            << "...0" << 0 // start
+            << false << delete_key << '>'
+            << "...0" << 1 // after click
+            << "0.0.0.0"; // after finish
+
+        QTest::newRow("delete in .|..0")
+            << "...0" << 1 // start
+            << false << delete_key << '>'
+            << "...0" << 2 // after click
+            << "0.0.0.0"; // after finish
+
+        QTest::newRow("delete in ..|.0")
+            << "...0" << 2 // start
+            << false << delete_key << '>'
+            << "...0" << 3 // after click
+            << "0.0.0.0"; // after finish
+
+        QTest::newRow("delete in |..0.")
+            << "..0." << 0 // start
+            << false << delete_key << '>'
+            << "..0." << 1 // after click
+            << "0.0.0.0"; // after finish
+
+        QTest::newRow("delete in .|.0.")
+            << "..0." << 1 // start
+            << false << delete_key << '>'
+            << "..0." << 2 // after click
+            << "0.0.0.0"; // after finish
+
+        QTest::newRow("delete in ..0|.")
+            << "..0." << 3 // start
+            << false << delete_key << '>'
+            << "..0." << 4 // after click
+            << "0.0.0.0"; // after finish
+
+        QTest::newRow("delete in |.0..")
+            << ".0.." << 0 // start
+            << false << delete_key << '>'
+            << ".0.." << 1 // after click
+            << "0.0.0.0"; // after finish
+
+        QTest::newRow("delete in .0|..")
+            << ".0.." << 2 // start
+            << false << delete_key << '>'
+            << ".0.." << 3 // after click
+            << "0.0.0.0"; // after finish
+
+        QTest::newRow("delete in .0.|.")
+            << ".0.." << 3 // start
+            << false << delete_key << '>'
+            << ".0.." << 4 // after click
+            << "0.0.0.0"; // after finish
+
+        QTest::newRow("delete in 0|...")
+            << "0..." << 1 // start
+            << false << delete_key << '>'
+            << "0..." << 2 // after click
+            << "0.0.0.0"; // after finish
+
+        QTest::newRow("delete in 0.|..")
+            << "0..." << 2 // start
+            << false << delete_key << '>'
+            << "0..." << 3 // after click
+            << "0.0.0.0"; // after finish
+
+        QTest::newRow("delete in 0..|.")
+            << "0..." << 3 // start
+            << false << delete_key << '>'
+            << "0..." << 4 // after click
+            << "0.0.0.0"; // after finish
+
+        // rermove zero octet
+        // remove one digit octet
+        // remove start of two digit octet
+        // remove end of two digit octet
+        // remove start of three digit octet
+        // remove end of three digit octet
+        // remove mid of three digit octet
+        // remove start of int value
+        // remove mid of int value
+        // remove end of int value
+
+        // === remove by backspace ===
+        // rermove dot
+        QTest::newRow("backspace in 0.|0.0.0")
+            << "0.0.0.0" << 2 // start
+            << false << backspace_key << '<'
+            << "0.0.0.0" << 1 // after click
+            << "0.0.0.0"; // after finish
+
+        QTest::newRow("backspace in 0.0.|0.0")
+            << "0.0.0.0" << 4 // start
+            << false << backspace_key << '<'
+            << "0.0.0.0" << 3 // after click
+            << "0.0.0.0"; // after finish
+
+        QTest::newRow("backspace in 0.0.0.|0")
+            << "0.0.0.0" << 6 // start
+            << false << backspace_key << '<'
+            << "0.0.0.0" << 5 // after click
+            << "0.0.0.0"; // after finish
+
+        QTest::newRow("backspace in 1.|1.1.1")
+            << "1.1.1.1" << 2 // start
+            << false << backspace_key << '<'
+            << "1.1.1.1" << 1 // after click
+            << "1.1.1.1"; // after finish
+
+        QTest::newRow("backspace in 1.1.|1.1")
+            << "1.1.1.1" << 4 // start
+            << false << backspace_key << '<'
+            << "1.1.1.1" << 3 // after click
+            << "1.1.1.1"; // after finish
+
+        QTest::newRow("backspace in 1.1.1.|1")
+            << "1.1.1.1" << 6 // start
+            << false << backspace_key << '<'
+            << "1.1.1.1" << 5 // after click
+            << "1.1.1.1"; // after finish
+
+        QTest::newRow("backspace in 12.|12.12.12")
+            << "12.12.12.12" << 3 // start
+            << false << backspace_key << '<'
+            << "12.12.12.12" << 2 // after click
+            << "12.12.12.12"; // after finish
+
+        QTest::newRow("backspace in 12.12.|12.12")
+            << "12.12.12.12" << 6 // start
+            << false << backspace_key << '<'
+            << "12.12.12.12" << 5 // after click
+            << "12.12.12.12"; // after finish
+
+        QTest::newRow("backspace in 12.12.12.|12")
+            << "12.12.12.12" << 9 // start
+            << false << backspace_key << '<'
+            << "12.12.12.12" << 8 // after click
+            << "12.12.12.12"; // after finish
+
+        QTest::newRow("backspace in 123.|123.123.123")
+            << "123.123.123.123" << 4 // start
+            << false << backspace_key << '<'
+            << "123.123.123.123" << 3 // after click
+            << "123.123.123.123"; // after finish
+
+        QTest::newRow("backspace in 123.123.|123.123")
+            << "123.123.123.123" << 8 // start
+            << false << backspace_key << '<'
+            << "123.123.123.123" << 7 // after click
+            << "123.123.123.123"; // after finish
+
+        QTest::newRow("backspace in 123.123.123.|123")
+            << "123.123.123.123" << 12 // start
+            << false << backspace_key << '<'
+            << "123.123.123.123" << 11 // after click
+            << "123.123.123.123"; // after finish
+
+        QTest::newRow("backspace in .|..0")
+            << "...0" << 1 // start
+            << false << backspace_key << '<'
+            << "...0" << 0 // after click
+            << "0.0.0.0"; // after finish
+
+        QTest::newRow("backspace in ..|.0")
+            << "...0" << 2 // start
+            << false << backspace_key << '<'
+            << "...0" << 1 // after click
+            << "0.0.0.0"; // after finish
+
+        QTest::newRow("backspace in ...|0")
+            << "...0" << 3 // start
+            << false << backspace_key << '<'
+            << "...0" << 2 // after click
+            << "0.0.0.0"; // after finish
+
+        QTest::newRow("backspace in .|.0.")
+            << "..0." << 1 // start
+            << false << backspace_key << '<'
+            << "..0." << 0 // after click
+            << "0.0.0.0"; // after finish
+
+        QTest::newRow("backspace in ..|0.")
+            << "..0." << 2 // start
+            << false << backspace_key << '<'
+            << "..0." << 1 // after click
+            << "0.0.0.0"; // after finish
+
+        QTest::newRow("backspace in ..0.|")
+            << "..0." << 4 // start
+            << false << backspace_key << '<'
+            << "..0." << 3 // after click
+            << "0.0.0.0"; // after finish
+
+        QTest::newRow("backspace in .|0..")
+            << ".0.." << 1 // start
+            << false << backspace_key << '<'
+            << ".0.." << 0 // after click
+            << "0.0.0.0"; // after finish
+
+        QTest::newRow("backspace in .0.|.")
+            << ".0.." << 3 // start
+            << false << backspace_key << '<'
+            << ".0.." << 2 // after click
+            << "0.0.0.0"; // after finish
+
+        QTest::newRow("backspace in .0..|")
+            << ".0.." << 4 // start
+            << false << backspace_key << '<'
+            << ".0.." << 3 // after click
+            << "0.0.0.0"; // after finish
+
+        QTest::newRow("backspace in 0.|..")
+            << "0..." << 2 // start
+            << false << backspace_key << '<'
+            << "0..." << 1 // after click
+            << "0.0.0.0"; // after finish
+
+        QTest::newRow("backspace in 0..|.")
+            << "0..." << 3 // start
+            << false << backspace_key << '<'
+            << "0..." << 2 // after click
+            << "0.0.0.0"; // after finish
+
+        QTest::newRow("backspace in 0...|")
+            << "0..." << 4 // start
+            << false << backspace_key << '<'
+            << "0..." << 3 // after click
+            << "0.0.0.0"; // after finish
+
+        // rermove zero octet
+        // remove one digit octet
+        // remove start of two digit octet
+        // remove end of two digit octet
+        // remove start of three digit octet
+        // remove end of three digit octet
+        // remove mid of three digit octet
+        // remove start of int value
+        // remove mid of int value
+        // remove end of int value
+    }
+    void oneClick(){
+        QFETCH(const QString, start_value);
+        QFETCH(const int, start_pos);
+        QFETCH(const QString, ip_edit_expected_value);
+        QFETCH(const QString, ip_edit_finish_expected_value);
+        QFETCH(const int, ip_edit_expected_pos);
+        QFETCH(const bool, is_key_char);
+        QFETCH(const Qt::Key, click_key);
+        QFETCH(const char, click_char);
+
+        if (
+            start_value == "1.1.1.1"
+            &&
+            start_pos == 1
+            &&
+            click_key == delete_key
+            &&
+            is_key_char == false
+        )
+        {
+            int a = 1;
+            ++a;
+        }
+
+        auto ip_edit = std::make_unique<LineEditWithIpValidatorTest>(start_value);
+        ip_edit->start_edit(start_pos);
+
+        auto text_before = ip_edit->text();
+        auto pos_before = ip_edit->cursorPosition();
+
+        if (is_key_char)
+            ip_edit->click(click_char);
+        else
+            ip_edit->click(click_key);
+        ip_edit->check(ip_edit_expected_value, ip_edit_expected_pos);
+
+        auto text_after = ip_edit->text();
+        auto pos_after = ip_edit->cursorPosition();
+
+        ip_edit->finish_edit();
+        ip_edit->check(ip_edit_finish_expected_value);
+    };
+
+    void clear_all_by_backspace_0_0_0_0();
+    void clear_all_by_delete_0_0_0_0();
 };
 
 class DirtyTestRunner

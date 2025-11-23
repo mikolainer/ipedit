@@ -6,36 +6,40 @@ void IntIpValidator::set_to(QLineEdit *editor){
     if (editor){
         auto validator = new IntIpValidator(editor);
         editor->setValidator(validator);
-        QString text = editor->text();
-        int pos = editor->cursorPosition();
+
         connect(
             editor, &QLineEdit::cursorPositionChanged,
             validator, [validator](int old_pos, int new_pos){
+                Q_UNUSED(old_pos)
                 validator->update(validator->m_last_text, new_pos);
             }
         );
 
-        auto t_copy = text;
-        auto p_copy = pos;
-        do{
-            if (validator->validate(text, pos) == Acceptable)
-            {
-                validator->update(text, pos);
-                break;
-            }
-            else
-            {
-                validator->fixup(text);
-                const int text_len = text.length();
-                if (pos > text_len)
-                    pos = text_len - 1;
-                t_copy = text;
-                p_copy = pos;
-            }
-        }
-        while (t_copy != text || p_copy != pos);
+        QString text = editor->text();
+        int pos = editor->cursorPosition();
+        validator->update(text, pos);
 
-        editor->setText(text);
+//        auto t_copy = text;
+//        auto p_copy = pos;
+//        do{
+//            if (validator->validate(text, pos) == Acceptable)
+//            {
+//                validator->update(text, pos);
+//                break;
+//            }
+//            else
+//            {
+//                validator->fixup(text);
+//                const int text_len = text.length();
+//                if (pos > text_len)
+//                    pos = text_len - 1;
+//                t_copy = text;
+//                p_copy = pos;
+//            }
+//        }
+//        while (t_copy != text || p_copy != pos);
+//
+//        editor->setText(text);
     }
 }
 
