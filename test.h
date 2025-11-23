@@ -138,9 +138,6 @@ private slots:
 
 class Test_1_2_3_4 : public Test_WithIpEdit
 { Q_OBJECT
-    constexpr static const int typing_delay = 200;
-    constexpr static const Qt::KeyboardModifiers kb_modifier = Qt::NoModifier;
-
 public:
     Test_1_2_3_4(QObject* parent = nullptr)
         : Test_WithIpEdit("1.2.3.4", parent)
@@ -225,16 +222,132 @@ public:
     {}
 
 private slots:
+    // insert zero around two digits octet
+    void enter_0_to_I11x22x33x44();
+    void enter_0_to_11Ix22x33x44();
+    void enter_0_to_11xI22x33x44();
+    void enter_0_to_11x22Ix33x44();
+
+    // insert zero to mid of two digits octet
+    void enter_0_to_1I1x22x33x44();
+    void enter_0_to_11x2I2x33x44();
+
+    // insert non zero digit around two digits octet
+    void enter_1_to_I11x22x33x44();
+    void enter_1_to_11Ix22x33x44();
+    void enter_1_to_11xI22x33x44();
+    void enter_1_to_11x22Ix33x44();
+
+    // insert non zero digit to mid of two digits octet
+    void enter_1_to_1I1x22x33x44();
+    void enter_1_to_11x2I2x33x44();
+
+    // insert to overflow octet value
+    void enter_3_to_11x22xI33x44();
+    void enter_0_to_11x22x3I3x44();
+    void enter_0_to_11x22x33Ix44();
+    void enter_3_to_11x22x33xI44();
+    void enter_0_to_11x22x33x4I4();
+    void enter_0_to_11x22x33x44I();
+
+    // insert special char to jump over separator
+    void enter_dot_to_11Ix22x33x44();
+    void enter_dot_to_11x22Ix33x44();
+    void enter_dot_to_11x22x33Ix44();
+
+    void enter_comma_to_11Ix22x33x44();
+    void enter_comma_to_11x22Ix33x44();
+    void enter_comma_to_11x22x33Ix44();
+
+    void enter_space_to_11Ix22x33x44();
+    void enter_space_to_11x22Ix33x44();
+    void enter_space_to_11x22x33Ix44();
+
+    // insert special char to make zero octet
+    void enter_dot_to_I11x22x33x44();
+    void enter_dot_to_11xI22x33x44();
+    void enter_dot_to_11x22xI33x44();
+    void enter_dot_to_11x22x33xI44();
+
+    void enter_comma_to_I11x22x33x44();
+    void enter_comma_to_11xI22x33x44();
+    void enter_comma_to_11x22xI33x44();
+    void enter_comma_to_11x22x33xI44();
+
+    void enter_space_to_I11x22x33x44();
+    void enter_space_to_11xI22x33x44();
+    void enter_space_to_11x22xI33x44();
+    void enter_space_to_11x22x33xI44();
+
+    // insert special char to cut end of octet
+    void enter_dot_to_1I1x22x33x44();
+    void enter_dot_to_11x2I2x33x44();
+    void enter_dot_to_11x22x3I3x44();
+    void enter_dot_to_11x22x33x4I4();
+
+    void enter_comma_to_1I1x22x33x44();
+    void enter_comma_to_11x2I2x33x44();
+    void enter_comma_to_11x22x3I3x44();
+    void enter_comma_to_11x22x33x4I4();
+
+    void enter_space_to_1I1x22x33x44();
+    void enter_space_to_11x2I2x33x44();
+    void enter_space_to_11x22x3I3x44();
+    void enter_space_to_11x22x33x4I4();
+
+    // remove dots
+    void backspace_11xI22x33x44();
+    void backspace_11x22xI33x44();
+    void backspace_11x22x33xI44();
+
+    void delete_11Ix22x33x44();
+    void delete_11x22Ix33x44();
+    void delete_11x22x33Ix44();
+
+    // remove all
+    void clear_all_by_backspace();
+    void clear_all_by_delete();
+};
+
+class Test_44_33_22_11 : public Test_WithIpEdit
+{ Q_OBJECT
+public:
+    Test_44_33_22_11(QObject* parent = nullptr)
+        : Test_WithIpEdit("44.33.22.11", parent)
+    {}
+
+private slots:
 // insert zero around two digits octet
+    void enter_0_to_44x33xI22x11();
+    void enter_0_to_44x33x22Ix11();
+    void enter_0_to_44x33x22xI11();
+    void enter_0_to_44x33x22x11I();
+
 // insert zero to mid of two digits octet
+    void enter_0_to_44x33x2I2x11();
+    void enter_0_to_44x33x22x1I1();
+
 // insert non zero digit around two digits octet
+    void enter_1_to_44x33xI22x11();
+    void enter_1_to_44x33x22Ix11();
+    void enter_1_to_44x33x22xI11();
+    void enter_1_to_44x33x22x11I();
+
 // insert non zero digit to mid of two digits octet
+    void enter_1_to_44x33x2I2x11();
+    void enter_1_to_44x33x22x1I1();
+
 // insert to overflow octet value
-// insert special char to jump over separator
-// insert special char to make zero octet
-// insert special char to cut end of octet
-// remove dots
+    void enter_3_to_I44x33x22x11();
+    void enter_0_to_4I4x33x22x11();
+    void enter_0_to_44Ix33x22x11();
+    void enter_3_to_44xI33x22x11();
+    void enter_0_to_44x3I3x22x11();
+    void enter_0_to_44x33Ix22x11();
+
 // remove all
+    void clear_all_by_backspace();
+    void clear_all_by_delete();
 };
 
 class Test_123_123_123_123 : public Test_WithIpEdit
@@ -278,12 +391,12 @@ public:
     {}
 
 private slots:
-    // move cursor by arrows
-    // move cursor by arrows and enter
-    // move cursor by arrows and remove
-    // insert from clipboard
-    // select and enter
-    // select and insert from clipboard
+// move cursor by arrows
+// move cursor by arrows and enter
+// move cursor by arrows and remove
+// insert from clipboard
+// select and enter
+// select and insert from clipboard
 };
 
 class DirtyTestRunner
