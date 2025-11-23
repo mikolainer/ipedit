@@ -114,6 +114,46 @@ void Test_0_0_0_0::delete_0x0x0Ix0()
     QCOMPARE(ip_edit_actually_pos(), ip_edit_expected_pos);
 }
 
+void Test_0_0_0_0::backspace_0Ix0x0x0()
+{
+
+}
+
+void Test_0_0_0_0::backspace_0x0Ix0x0()
+{
+
+}
+
+void Test_0_0_0_0::backspace_0x0x0Ix0()
+{
+
+}
+
+void Test_0_0_0_0::backspace_0x0x0x0I()
+{
+
+}
+
+void Test_0_0_0_0::delete_I0x0x0x0()
+{
+
+}
+
+void Test_0_0_0_0::delete_0xI0x0x0()
+{
+
+}
+
+void Test_0_0_0_0::delete_0x0xI0x0()
+{
+
+}
+
+void Test_0_0_0_0::delete_0x0x0xI0()
+{
+
+}
+
 void Test_0_0_0_0::clear_all_by_backspace(){
     start_edit();
         // 0.0.0.0|
@@ -300,6 +340,10 @@ void Test_0_0_0_0::enter_0_to_0x0Ix0x0()
     QCOMPARE(ip_edit_actually_value(), ip_edit_expected_value);
 }
 
+Test_0_0_0_0::Test_0_0_0_0(QObject *parent)
+    : Test_WithIpEdit("0.0.0.0", parent)
+{}
+
 void Test_0_0_0_0::enter_0_to_I0x0x0x0()
 {
     start_edit(0);
@@ -451,6 +495,66 @@ void Test_0_0_0_0::enter_1_to_0x0x0x0I()
     finish_edit();
     // "0.0.0.1"
     QCOMPARE(ip_edit_actually_value(), ip_edit_expected_value);
+}
+
+void Test_0_0_0_0::enter_dot_I0x0x0x0()
+{
+    QSKIP("Not Implemented");
+}
+
+void Test_0_0_0_0::enter_dot_0xI0x0x0()
+{
+    QSKIP("Not Implemented");
+}
+
+void Test_0_0_0_0::enter_dot_0x0xI0x0()
+{
+    QSKIP("Not Implemented");
+}
+
+void Test_0_0_0_0::enter_dot_0x0x0xI0()
+{
+    QSKIP("Not Implemented");
+}
+
+void Test_0_0_0_0::enter_comma_I0x0x0x0()
+{
+    QSKIP("Not Implemented");
+}
+
+void Test_0_0_0_0::enter_comma_0xI0x0x0()
+{
+    QSKIP("Not Implemented");
+}
+
+void Test_0_0_0_0::enter_comma_0x0xI0x0()
+{
+    QSKIP("Not Implemented");
+}
+
+void Test_0_0_0_0::enter_comma_0x0x0xI0()
+{
+    QSKIP("Not Implemented");
+}
+
+void Test_0_0_0_0::enter_space_I0x0x0x0()
+{
+    QSKIP("Not Implemented");
+}
+
+void Test_0_0_0_0::enter_space_0xI0x0x0()
+{
+    QSKIP("Not Implemented");
+}
+
+void Test_0_0_0_0::enter_space_0x0xI0x0()
+{
+    QSKIP("Not Implemented");
+}
+
+void Test_0_0_0_0::enter_space_0x0x0xI0()
+{
+    QSKIP("Not Implemented");
 }
 
 void Test_0_0_0_0::enter_dot_0x0Ix0x0()
@@ -632,4 +736,249 @@ void DirtyTestRunner::run_all()
         auto test = Test_123_45_0_255();
         QTest::qExec(&test);
     }
+}
+
+void Test_1_2_3_4::enter_0_to_I1x2x3x4()
+{
+    QSKIP("Not Implemented");
+}
+
+void Test_1_2_3_4::enter_0_to_1Ix2x3x4()
+{
+    QSKIP("Not Implemented");
+}
+
+void Test_1_2_3_4::enter_0_to_1xI2x3x4()
+{
+    QSKIP("Not Implemented");
+}
+
+void Test_1_2_3_4::enter_0_to_1x2Ix3x4()
+{
+    QSKIP("Not Implemented");
+}
+
+void Test_1_2_3_4::enter_0_to_1x2x3xI4()
+{
+    QSKIP("Not Implemented");
+}
+
+void Test_1_2_3_4::enter_0_to_1x2x3x4I()
+{
+    QSKIP("Not Implemented");
+}
+
+void Test_1_2_3_4::enter_1_to_I1x2x3x4()
+{
+    QSKIP("Not Implemented");
+}
+
+void Test_1_2_3_4::enter_1_to_1Ix2x3x4()
+{
+    QSKIP("Not Implemented");
+}
+
+void Test_1_2_3_4::enter_1_to_1xI2x3x4()
+{
+    QSKIP("Not Implemented");
+}
+
+void Test_1_2_3_4::enter_1_to_1x2Ix3x4()
+{
+    QSKIP("Not Implemented");
+}
+
+void Test_1_2_3_4::enter_1_to_1x2x3xI4()
+{
+    QSKIP("Not Implemented");
+}
+
+void Test_1_2_3_4::enter_1_to_1x2x3x4I()
+{
+    QSKIP("Not Implemented");
+}
+
+void Test_1_2_3_4::enter_dot_1Ix2x3x4()
+{
+    QSKIP("Not Implemented");
+}
+
+void Test_1_2_3_4::enter_dot_1x2Ix3x4()
+{
+    QSKIP("Not Implemented");
+}
+
+void Test_1_2_3_4::enter_dot_1x2x3Ix4()
+{
+    QSKIP("Not Implemented");
+}
+
+void Test_1_2_3_4::enter_comma_1Ix2x3x4()
+{
+    QSKIP("Not Implemented");
+}
+
+void Test_1_2_3_4::enter_comma_1x2Ix3x4()
+{
+    QSKIP("Not Implemented");
+}
+
+void Test_1_2_3_4::enter_comma_1x2x3Ix4()
+{
+    QSKIP("Not Implemented");
+}
+
+void Test_1_2_3_4::enter_space_1Ix2x3x4()
+{
+    QSKIP("Not Implemented");
+}
+
+void Test_1_2_3_4::enter_space_1x2Ix3x4()
+{
+    QSKIP("Not Implemented");
+}
+
+void Test_1_2_3_4::enter_space_1x2x3Ix4()
+{
+    QSKIP("Not Implemented");
+}
+
+void Test_1_2_3_4::enter_dot_I1x2x3x4()
+{
+    QSKIP("Not Implemented");
+}
+
+void Test_1_2_3_4::enter_dot_1xI2x3x4()
+{
+    QSKIP("Not Implemented");
+}
+
+void Test_1_2_3_4::enter_dot_1x2xI3x4()
+{
+    QSKIP("Not Implemented");
+}
+
+void Test_1_2_3_4::enter_dot_1x2x3xI4()
+{
+    QSKIP("Not Implemented");
+}
+
+void Test_1_2_3_4::enter_comma_I1x2x3x4()
+{
+    QSKIP("Not Implemented");
+}
+
+void Test_1_2_3_4::enter_comma_1xI2x3x4()
+{
+    QSKIP("Not Implemented");
+}
+
+void Test_1_2_3_4::enter_comma_1x2xI3x4()
+{
+    QSKIP("Not Implemented");
+}
+
+void Test_1_2_3_4::enter_comma_1x2x3xI4()
+{
+    QSKIP("Not Implemented");
+}
+
+void Test_1_2_3_4::enter_space_I1x2x3x4()
+{
+    QSKIP("Not Implemented");
+}
+
+void Test_1_2_3_4::enter_space_1xI2x3x4()
+{
+    QSKIP("Not Implemented");
+}
+
+void Test_1_2_3_4::enter_space_1x2xI3x4()
+{
+    QSKIP("Not Implemented");
+}
+
+void Test_1_2_3_4::enter_space_1x2x3xI4()
+{
+    QSKIP("Not Implemented");
+}
+
+void Test_1_2_3_4::backspace_1xI2x3x4()
+{
+    QSKIP("Not Implemented");
+}
+
+void Test_1_2_3_4::backspace_1x2xI3x4()
+{
+    QSKIP("Not Implemented");
+}
+
+void Test_1_2_3_4::backspace_1x2x3xI4()
+{
+    QSKIP("Not Implemented");
+}
+
+void Test_1_2_3_4::delete_1Ix2x3x4()
+{
+    QSKIP("Not Implemented");
+}
+
+void Test_1_2_3_4::delete_1x2Ix3x4()
+{
+    QSKIP("Not Implemented");
+}
+
+void Test_1_2_3_4::delete_1x2x3Ix4()
+{
+    QSKIP("Not Implemented");
+}
+
+void Test_1_2_3_4::backspace_1Ix2x3x4()
+{
+    QSKIP("Not Implemented");
+}
+
+void Test_1_2_3_4::backspace_1x2Ix3x4()
+{
+    QSKIP("Not Implemented");
+}
+
+void Test_1_2_3_4::backspace_1x2x3Ix4()
+{
+    QSKIP("Not Implemented");
+}
+
+void Test_1_2_3_4::backspace_1x2x3x4I()
+{
+    QSKIP("Not Implemented");
+}
+
+void Test_1_2_3_4::delete_I1x2x3x4()
+{
+    QSKIP("Not Implemented");
+}
+
+void Test_1_2_3_4::delete_1xI2x3x4()
+{
+    QSKIP("Not Implemented");
+}
+
+void Test_1_2_3_4::delete_1x2xI3x4()
+{
+    QSKIP("Not Implemented");
+}
+
+void Test_1_2_3_4::delete_1x2x3xI4()
+{
+    QSKIP("Not Implemented");
+}
+
+void Test_1_2_3_4::clear_all_by_backspace()
+{
+    QSKIP("Not Implemented");
+}
+
+void Test_1_2_3_4::clear_all_by_delete()
+{
+    QSKIP("Not Implemented");
 }

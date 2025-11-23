@@ -62,9 +62,7 @@ private:
 class Test_0_0_0_0 : public Test_WithIpEdit
 { Q_OBJECT
 public:
-    Test_0_0_0_0(QObject* parent = nullptr)
-        : Test_WithIpEdit("0.0.0.0", parent)
-    {}
+    Test_0_0_0_0(QObject* parent = nullptr);
 
 private slots:
 // insert zero around zero octet
@@ -83,6 +81,23 @@ private slots:
     void enter_1_to_0x0x0xI0();
     void enter_1_to_0x0x0x0I();
 
+// insert special char to make zero octet
+    void enter_dot_I0x0x0x0();
+    void enter_dot_0xI0x0x0();
+    void enter_dot_0x0xI0x0();
+    void enter_dot_0x0x0xI0();
+
+    void enter_comma_I0x0x0x0();
+    void enter_comma_0xI0x0x0();
+    void enter_comma_0x0xI0x0();
+    void enter_comma_0x0x0xI0();
+
+    void enter_space_I0x0x0x0();
+    void enter_space_0xI0x0x0();
+    void enter_space_0x0xI0x0();
+    void enter_space_0x0x0xI0();
+
+
 // insert special char to jump over separator
     void enter_dot_0Ix0x0x0();
     void enter_dot_0x0Ix0x0();
@@ -96,7 +111,6 @@ private slots:
     void enter_space_0x0Ix0x0();
     void enter_space_0x0x0Ix0();
 
-private slots:
 // remove dots
     void backspace_0xI0x0x0();
     void backspace_0x0xI0x0();
@@ -107,6 +121,16 @@ private slots:
     void delete_0x0x0Ix0();
 
 // remove zero octet
+    void backspace_0Ix0x0x0();
+    void backspace_0x0Ix0x0();
+    void backspace_0x0x0Ix0();
+    void backspace_0x0x0x0I();
+
+    void delete_I0x0x0x0();
+    void delete_0xI0x0x0();
+    void delete_0x0xI0x0();
+    void delete_0x0x0xI0();
+
 // remove all
     void clear_all_by_backspace();
     void clear_all_by_delete();
@@ -124,12 +148,73 @@ public:
 
 private slots:
 // insert zero around non zero octet
+    void enter_0_to_I1x2x3x4();
+    void enter_0_to_1Ix2x3x4();
+    void enter_0_to_1xI2x3x4();
+    void enter_0_to_1x2Ix3x4();
+    void enter_0_to_1x2x3xI4();
+    void enter_0_to_1x2x3x4I();
+
 // insert non zero digit around non zero octet
+    void enter_1_to_I1x2x3x4();
+    void enter_1_to_1Ix2x3x4();
+    void enter_1_to_1xI2x3x4();
+    void enter_1_to_1x2Ix3x4();
+    void enter_1_to_1x2x3xI4();
+    void enter_1_to_1x2x3x4I();
+
 // insert special char to jump over separator
+    void enter_dot_1Ix2x3x4();
+    void enter_dot_1x2Ix3x4();
+    void enter_dot_1x2x3Ix4();
+
+    void enter_comma_1Ix2x3x4();
+    void enter_comma_1x2Ix3x4();
+    void enter_comma_1x2x3Ix4();
+
+    void enter_space_1Ix2x3x4();
+    void enter_space_1x2Ix3x4();
+    void enter_space_1x2x3Ix4();
+
 // insert special char to make zero octet
+    void enter_dot_I1x2x3x4();
+    void enter_dot_1xI2x3x4();
+    void enter_dot_1x2xI3x4();
+    void enter_dot_1x2x3xI4();
+
+    void enter_comma_I1x2x3x4();
+    void enter_comma_1xI2x3x4();
+    void enter_comma_1x2xI3x4();
+    void enter_comma_1x2x3xI4();
+
+    void enter_space_I1x2x3x4();
+    void enter_space_1xI2x3x4();
+    void enter_space_1x2xI3x4();
+    void enter_space_1x2x3xI4();
+
 // remove dots
+    void backspace_1xI2x3x4();
+    void backspace_1x2xI3x4();
+    void backspace_1x2x3xI4();
+
+    void delete_1Ix2x3x4();
+    void delete_1x2Ix3x4();
+    void delete_1x2x3Ix4();
+
 // remove one digit non zero octet
+    void backspace_1Ix2x3x4();
+    void backspace_1x2Ix3x4();
+    void backspace_1x2x3Ix4();
+    void backspace_1x2x3x4I();
+
+    void delete_I1x2x3x4();
+    void delete_1xI2x3x4();
+    void delete_1x2xI3x4();
+    void delete_1x2x3xI4();
+
 // remove all
+    void clear_all_by_backspace();
+    void clear_all_by_delete();
 };
 
 class Test_11_22_33_44 : public Test_WithIpEdit
@@ -140,10 +225,10 @@ public:
     {}
 
 private slots:
-// insert zero around non zero octet
-// insert zero between non zero digits
-// insert non zero digit around non zero octet
-// insert non zero digit between non zero digits
+// insert zero around two digits octet
+// insert zero to mid of two digits octet
+// insert non zero digit around two digits octet
+// insert non zero digit to mid of two digits octet
 // insert to overflow octet value
 // insert special char to jump over separator
 // insert special char to make zero octet
