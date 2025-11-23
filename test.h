@@ -472,6 +472,103 @@ private slots:
             << "12.12.12.112" << 11 // after click
             << "12.12.12.112"; // after finish
 
+        QTest::newRow("enter 1 to |10.10.10.10")
+            << "10.10.10.10" << 0 // start
+            << false << Qt::Key_1 << '1'
+            << "110.10.10.10" << 1 // after click
+            << "110.10.10.10"; // after finish
+
+        QTest::newRow("enter 1 to 10|.10.10.10")
+            << "10.10.10.10" << 2 // start
+            << false << Qt::Key_1 << '1'
+            << "101.10.10.10" << 3 // after click
+            << "101.10.10.10"; // after finish
+
+        QTest::newRow("enter 1 to 10.|10.10.10")
+            << "10.10.10.10" << 3 // start
+            << false << Qt::Key_1 << '1'
+            << "10.110.10.10" << 4 // after click
+            << "10.110.10.10"; // after finish
+
+        QTest::newRow("enter 1 to 10.10|.10.10")
+            << "10.10.10.10" << 5 // start
+            << false << Qt::Key_1 << '1'
+            << "10.101.10.10" << 6 // after click
+            << "10.101.10.10"; // after finish
+
+        QTest::newRow("enter 1 to 10.10.|10.10")
+            << "10.10.10.10" << 6 // start
+            << false << Qt::Key_1 << '1'
+            << "10.10.110.10" << 7 // after click
+            << "10.10.110.10"; // after finish
+
+        QTest::newRow("enter 1 to 10.10.10|.10")
+            << "10.10.10.10" << 8 // start
+            << false << Qt::Key_1 << '1'
+            << "10.10.101.10" << 9 // after click
+            << "10.10.101.10"; // after finish
+
+        QTest::newRow("enter 1 to 10.10.10.|10")
+            << "10.10.10.10" << 9 // start
+            << false << Qt::Key_1 << '1'
+            << "10.10.10.110" << 10 // after click
+            << "10.10.10.110"; // after finish
+
+        QTest::newRow("enter 1 to 10.10.10.10|")
+            << "10.10.10.10" << 11 // start
+            << false << Qt::Key_1 << '1'
+            << "10.10.10.101" << 12 // after click
+            << "10.10.10.101"; // after finish
+
+        // enter 1 to mid of two digit octet
+        QTest::newRow("enter 1 to 1|2.12.12.12")
+            << "12.12.12.12" << 1 // start
+            << false << Qt::Key_1 << '1'
+            << "112.12.12.12" << 2 // after click
+            << "112.12.12.12"; // after finish
+
+        QTest::newRow("enter 1 to 12.1|2.12.12")
+            << "12.12.12.12" << 4 // start
+            << false << Qt::Key_1 << '1'
+            << "12.112.12.12" << 5 // after click
+            << "12.112.12.12"; // after finish
+
+        QTest::newRow("enter 1 to 12.12.1|2.12")
+            << "12.12.12.12" << 7 // start
+            << false << Qt::Key_1 << '1'
+            << "12.12.112.12" << 8 // after click
+            << "12.12.112.12"; // after finish
+
+        QTest::newRow("enter 1 to 12.12.12.1|2")
+            << "12.12.12.12" << 10 // start
+            << false << Qt::Key_1 << '1'
+            << "12.12.12.112" << 11 // after click
+            << "12.12.12.112"; // after finish
+
+        QTest::newRow("enter 1 to 1|0.10.10.10")
+            << "10.10.10.10" << 1 // start
+            << false << Qt::Key_1 << '1'
+            << "110.10.10.10" << 2 // after click
+            << "110.10.10.10"; // after finish
+
+        QTest::newRow("enter 1 to 10.1|0.10.10")
+            << "10.10.10.10" << 4 // start
+            << false << Qt::Key_1 << '1'
+            << "10.110.10.10" << 5 // after click
+            << "10.110.10.10"; // after finish
+
+        QTest::newRow("enter 1 to 10.10.1|0.10")
+            << "10.10.10.10" << 7 // start
+            << false << Qt::Key_1 << '1'
+            << "10.10.110.10" << 8 // after click
+            << "10.10.110.10"; // after finish
+
+        QTest::newRow("enter 1 to 10.10.10.1|0")
+            << "10.10.10.10" << 10 // start
+            << false << Qt::Key_1 << '1'
+            << "10.10.10.110" << 11 // after click
+            << "10.10.10.110"; // after finish
+
         // enter 1 around three digit octet
         QTest::newRow("enter 1 to |100.100.100.100")
             << "100.100.100.100" << 0 // start
