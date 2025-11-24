@@ -669,6 +669,78 @@ private slots:
 
         // === max octet value ===
         // enter max valid octet value
+        QTest::newRow("enter 5 to 2|5.25.25.25")
+            << "25.25.25.25" << 1 // start
+            << false << Qt::Key_5 << '5'
+            << "255.25.25.25" << 2 // after click
+            << "255.25.25.25"; // after finish
+
+        QTest::newRow("enter 5 to 25|.25.25.25")
+            << "25.25.25.25" << 2 // start
+            << false << Qt::Key_5 << '5'
+            << "255.25.25.25" << 3 // after click
+            << "255.25.25.25"; // after finish
+
+        QTest::newRow("enter 5 to 25.2|5.25.25")
+            << "25.25.25.25" << 4 // start
+            << false << Qt::Key_5 << '5'
+            << "25.255.25.25" << 5 // after click
+            << "25.255.25.25"; // after finish
+
+        QTest::newRow("enter 5 to 25.25|.25.25")
+            << "25.25.25.25" << 5 // start
+            << false << Qt::Key_5 << '5'
+            << "25.255.25.25" << 6 // after click
+            << "25.255.25.25"; // after finish
+
+        QTest::newRow("enter 5 to 25.25.2|5.25")
+            << "25.25.25.25" << 7 // start
+            << false << Qt::Key_5 << '5'
+            << "25.25.255.25" << 8 // after click
+            << "25.25.255.25"; // after finish
+
+        QTest::newRow("enter 5 to 25.25.25|.25")
+            << "25.25.25.25" << 8 // start
+            << false << Qt::Key_5 << '5'
+            << "25.25.255.25" << 9 // after click
+            << "25.25.255.25"; // after finish
+
+        QTest::newRow("enter 5 to 25.25.25.2|5")
+            << "25.25.25.25" << 10 // start
+            << false << Qt::Key_5 << '5'
+            << "25.25.25.255" << 11 // after click
+            << "25.25.25.255"; // after finish
+
+        QTest::newRow("enter 5 to 25.25.25.25|")
+            << "25.25.25.25" << 11 // start
+            << false << Qt::Key_5 << '5'
+            << "25.25.25.255" << 12 // after click
+            << "25.25.25.255"; // after finish
+
+        QTest::newRow("enter 2 to |55.55.55.55")
+            << "55.55.55.55" << 0 // start
+            << false << Qt::Key_2 << '2'
+            << "255.55.55.55" << 1 // after click
+            << "255.55.55.55"; // after finish
+
+        QTest::newRow("enter 2 to 55.|55.55.55")
+            << "55.55.55.55" << 3 // start
+            << false << Qt::Key_2 << '2'
+            << "55.255.55.55" << 4 // after click
+            << "55.255.55.55"; // after finish
+
+        QTest::newRow("enter 2 to 55.55.|55.55")
+            << "55.55.55.55" << 6 // start
+            << false << Qt::Key_2 << '2'
+            << "55.55.255.55" << 7 // after click
+            << "55.55.255.55"; // after finish
+
+        QTest::newRow("enter 2 to 55.55.55.|55")
+            << "55.55.55.55" << 9 // start
+            << false << Qt::Key_2 << '2'
+            << "55.55.55.255" << 10 // after click
+            << "55.55.55.255"; // after finish
+
         // enter overflowed octet value
 
         // === special chars
