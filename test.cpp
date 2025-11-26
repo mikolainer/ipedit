@@ -106,3 +106,8 @@ QList<State> ClickEffect::InputSet::start_states() const {
 
     return result;
 }
+
+QString State::toString() const {
+    auto value_copy = value;
+    return value_copy.insert(pos, ClickEffect::InputSet::click_pos_marker);
+}

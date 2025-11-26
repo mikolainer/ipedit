@@ -47,25 +47,42 @@ public:
     }
 };
 
+struct State{
+    QString value;
+    int pos;
+
+    QString toString() const;
+};
+
 struct Click{
     bool is_char;
     Qt::Key click_key;
     char click_char;
 
-    const QString operation_name(){
-        if (click_key == Qt::Key_Backspace)
+    bool is_forward_remove() const {
+        return click_key == Qt::Key_Delete;
+    }
+
+    bool is_backward_remove() const {
+        return click_key == Qt::Key_Backspace;
+    }
+
+    QString make_test_name(const State& start_state) const
+    {
+        return QString("%1 %2")
+            .arg(operation_name(), start_state.toString())
+            .toUtf8().data();
+    }
+
+    QString operation_name() const{
+        if (is_backward_remove())
             return "backspace in";
 
-        if (click_key == Qt::Key_Delete)
+        if (is_forward_remove())
             return "delete in";
 
         return "enter to";
     }
-};
-
-struct State{
-    QString value;
-    int pos;
 };
 
 struct Case{
@@ -104,9 +121,7 @@ public:
             test.start = {format.start_value, pos};
             test.expected = new_value(test.start);
             test.finish_value = finish_value(test.expected.value);
-            test.name = QString("%1 %2")
-                .arg(test.key.operation_name(), test.start.value)
-                .toUtf8().data();
+            test.name = m_key.make_test_name(test.start).toLatin1().data();
         }
 
         return result;
@@ -126,10 +141,67 @@ public:
 
 protected:
     State new_value(const State& start) const override{
+        auto start_copy = start;
 
+        if (m_key.is_backward_remove())
+        {
+            auto it = start_copy.value.begin() + start.pos -1;
+            start_copy.value.erase(it);
+        }
+        else if (m_key.is_forward_remove())
+        {
+            auto it = start_copy.value.begin() + start.pos;
+            start_copy.value.erase(it);
+        }
+        else
+        {
+            char keychar = m_key.click_char;
+            if (!m_key.is_char)
+            {
+                switch (m_key.click_key) {
+                case Qt::Key_0:
+                    keychar = '0';
+                    break;
+                case Qt::Key_1:
+                    keychar = '1';
+                    break;
+                case Qt::Key_2:
+                    keychar = '2';
+                    break;
+                case Qt::Key_3:
+                    keychar = '3';
+                    break;
+                case Qt::Key_4:
+                    keychar = '4';
+                    break;
+                case Qt::Key_5:
+                    keychar = '5';
+                    break;
+                case Qt::Key_6:
+                    keychar = '6';
+                    break;
+                case Qt::Key_7:
+                    keychar = '7';
+                    break;
+                case Qt::Key_8:
+                    keychar = '8';
+                    break;
+                case Qt::Key_9:
+                    keychar = '9';
+                    break;
+                default:
+                    Q_ASSERT(false); // invalid key
+                }
+            }
+
+            start_copy.value = start_copy.value.insert(start.pos, keychar);
+        }
+
+        start_copy.pos += m_key.is_backward_remove() ? -1 : +1;
+        return start_copy;
     }
     QString finish_value(const QString& expected) const override{
-
+        return expected;
     }
 };
 
@@ -140,10 +212,10 @@ public:
 
 protected:
     State new_value(const State& start) const override{
-
+        return start;
     }
     QString finish_value(const QString& expected) const override{
-
+        return expected;
     }
 };
 
@@ -154,10 +226,12 @@ public:
 
 protected:
     State new_value(const State& start) const override{
-
+        auto start_copy = start;
+        start_copy.pos += m_key.is_backward_remove() ? -1 : +1;
+        return start_copy;
     }
     QString finish_value(const QString& expected) const override{
-
+        return expected;
     }
 };
 
