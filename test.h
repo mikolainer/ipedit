@@ -52,12 +52,100 @@ struct State{
     int pos;
 
     QString toString() const;
+
+    constexpr bool operator==(const State& other) const{
+        return other.value == value
+               && other.pos == pos;
+    }
 };
 
 struct Click{
+    constexpr static const Qt::Key default_key{Qt::Key_Any};
+    constexpr static const char default_char{' '};
+
     bool is_char;
     Qt::Key click_key;
     char click_char;
+
+    Click(char key)
+        : is_char(true)
+        , click_key(Click::default_key)
+        , click_char(key)
+    {}
+
+    Click(Qt::Key key)
+        : is_char(false)
+        , click_key(key)
+        , click_char(char_from_key(key))
+    {}
+
+    Click(bool is_char, Qt::Key key, char ch)
+        : is_char(is_char)
+        , click_key(key)
+        , click_char(ch)
+    {}
+
+    Click()
+        : is_char(false)
+        , click_key(Click::default_key)
+        , click_char(Click::default_char)
+    {}
+
+    constexpr bool operator==(const Click& other) const{
+        return other.is_char == is_char
+            && other.click_char == click_char
+            && other.click_key == click_key;
+    }
+
+    static char char_from_key(Qt::Key key)
+    {
+        char keychar = default_char;
+        switch (key) {
+        case Qt::Key_0:
+            keychar = '0';
+            break;
+        case Qt::Key_1:
+            keychar = '1';
+            break;
+        case Qt::Key_2:
+            keychar = '2';
+            break;
+        case Qt::Key_3:
+            keychar = '3';
+            break;
+        case Qt::Key_4:
+            keychar = '4';
+            break;
+        case Qt::Key_5:
+            keychar = '5';
+            break;
+        case Qt::Key_6:
+            keychar = '6';
+            break;
+        case Qt::Key_7:
+            keychar = '7';
+            break;
+        case Qt::Key_8:
+            keychar = '8';
+            break;
+        case Qt::Key_9:
+            keychar = '9';
+            break;
+        case Qt::Key_Space:
+            keychar = ' ';
+            break;
+        case Qt::Key_Delete:
+            keychar = default_char;
+            break;
+        case Qt::Key_Backspace:
+            keychar = default_char;
+            break;
+        default:
+            Q_ASSERT(false); // invalid key
+        }
+
+        return keychar;
+    }
 
     bool is_forward_remove() const {
         return click_key == Qt::Key_Delete;
@@ -69,19 +157,25 @@ struct Click{
 
     QString make_test_name(const State& start_state) const
     {
-        return QString("%1 %2")
-            .arg(operation_name(), start_state.toString())
+        bool is_remove = is_backward_remove() || is_forward_remove();
+
+        return QString("%1 %2 %3")
+            .arg(
+                operation_name(),
+                is_remove ? "in" : QString("%1 to").arg(click_char),
+                start_state.toString()
+            )
             .toUtf8().data();
     }
 
     QString operation_name() const{
         if (is_backward_remove())
-            return "backspace in";
+            return "backspace";
 
         if (is_forward_remove())
-            return "delete in";
+            return "delete";
 
-        return "enter to";
+        return "enter";
     }
 };
 
@@ -91,6 +185,14 @@ struct Case{
     State start;
     State expected;
     QString finish_value;
+
+    bool operator==(const Case& other) const{
+        return std::strcmp(other.name, name) == 0
+            && other.key == key
+            && other.start == start
+            && other.expected == expected
+            && other.finish_value == finish_value;
+    }
 };
 
 class ClickEffect{
@@ -110,7 +212,7 @@ public:
         : m_key(key)
     {}
 
-    virtual const QList<Case> make(const InputSet& format) const
+    virtual QList<Case> make(const InputSet& format) const
     {
         QList<Case> result;
 
@@ -122,6 +224,7 @@ public:
             test.expected = new_value(test.start);
             test.finish_value = finish_value(test.expected.value);
             test.name = m_key.make_test_name(test.start).toLatin1().data();
+            result.append(test);
         }
 
         return result;
@@ -147,6 +250,7 @@ protected:
         {
             auto it = start_copy.value.begin() + start.pos -1;
             start_copy.value.erase(it);
+            start_copy.pos--;
         }
         else if (m_key.is_forward_remove())
         {
@@ -156,48 +260,10 @@ protected:
         else
         {
             char keychar = m_key.click_char;
-            if (!m_key.is_char)
-            {
-                switch (m_key.click_key) {
-                case Qt::Key_0:
-                    keychar = '0';
-                    break;
-                case Qt::Key_1:
-                    keychar = '1';
-                    break;
-                case Qt::Key_2:
-                    keychar = '2';
-                    break;
-                case Qt::Key_3:
-                    keychar = '3';
-                    break;
-                case Qt::Key_4:
-                    keychar = '4';
-                    break;
-                case Qt::Key_5:
-                    keychar = '5';
-                    break;
-                case Qt::Key_6:
-                    keychar = '6';
-                    break;
-                case Qt::Key_7:
-                    keychar = '7';
-                    break;
-                case Qt::Key_8:
-                    keychar = '8';
-                    break;
-                case Qt::Key_9:
-                    keychar = '9';
-                    break;
-                default:
-                    Q_ASSERT(false); // invalid key
-                }
-            }
-
             start_copy.value = start_copy.value.insert(start.pos, keychar);
+            start_copy.pos++;
         }
 
-        start_copy.pos += m_key.is_backward_remove() ? -1 : +1;
         return start_copy;
     }
     QString finish_value(const QString& expected) const override{
@@ -273,6 +339,318 @@ public:
         << test.key.is_char << test.key.click_key << test.key.click_char
         << test.expected.value << test.expected.pos // after click
         << test.finish_value; // after finish
+    }
+};
+
+class Test_OneClickHelpers : public QObject
+{ Q_OBJECT
+
+    const State state{"12.12.12.12", 2};
+public:
+    Test_OneClickHelpers(QObject* parent = nullptr) : QObject(parent) {}
+
+private slots:
+    void test_make_click_ch_space()
+    {
+        char ch = ' ';
+        Click actual = Click(ch);
+        Click expected = Click{true, Click::default_key, ch};
+        QCOMPARE(actual, expected);
+    }
+
+    void test_make_click_ch_dot()
+    {
+        char ch = '.';
+        Click actual = Click(ch);
+        Click expected = Click{true, Click::default_key, ch};
+        QCOMPARE(actual, expected);
+    }
+
+    void test_make_click_ch_0()
+    {
+        char ch = '0';
+        Click actual = Click(ch);
+        Click expected = Click{true, Click::default_key, ch};
+        QCOMPARE(actual, expected);
+    }
+
+    void test_make_click_ch_1()
+    {
+        char ch = '1';
+        Click actual = Click(ch);
+        Click expected = Click{true, Click::default_key, ch};
+        QCOMPARE(actual, expected);
+    }
+
+    void test_make_click_ch_2()
+    {
+        char ch = '2';
+        Click actual = Click(ch);
+        Click expected = Click{true, Click::default_key, ch};
+        QCOMPARE(actual, expected);
+    }
+
+    void test_make_click_ch_3()
+    {
+        char ch = '3';
+        Click actual = Click(ch);
+        Click expected = Click{true, Click::default_key, ch};
+        QCOMPARE(actual, expected);
+    }
+
+    void test_make_click_ch_4()
+    {
+        char ch = '4';
+        Click actual = Click(ch);
+        Click expected = Click{true, Click::default_key, ch};
+        QCOMPARE(actual, expected);
+    }
+
+    void test_make_click_ch_5()
+    {
+        char ch = '5';
+        Click actual = Click(ch);
+        Click expected = Click{true, Click::default_key, ch};
+        QCOMPARE(actual, expected);
+    }
+
+    void test_make_click_ch_6()
+    {
+        char ch = '6';
+        Click actual = Click(ch);
+        Click expected = Click{true, Click::default_key, ch};
+        QCOMPARE(actual, expected);
+    }
+
+    void test_make_click_ch_7()
+    {
+        char ch = '7';
+        Click actual = Click(ch);
+        Click expected = Click{true, Click::default_key, ch};
+        QCOMPARE(actual, expected);
+    }
+
+    void test_make_click_ch_8()
+    {
+        char ch = '8';
+        Click actual = Click(ch);
+        Click expected = Click{true, Click::default_key, ch};
+        QCOMPARE(actual, expected);
+    }
+
+    void test_make_click_ch_9()
+    {
+        char ch = '9';
+        Click actual = Click(ch);
+        Click expected = Click{true, Click::default_key, ch};
+        QCOMPARE(actual, expected);
+    }
+
+    void test_make_click_ch_comma()
+    {
+        char ch = ',';
+        Click actual = Click(ch);
+        Click expected = Click{true, Click::default_key, ch};
+        QCOMPARE(actual, expected);
+    }
+
+    void test_make_click_key_space()
+    {
+        Qt::Key key = Qt::Key_Space;
+        Click actual(key);
+        Click expected{false, key, Click::default_char};
+        QCOMPARE(actual, expected);
+    }
+
+    void test_make_click_key_0()
+    {
+        Qt::Key key = Qt::Key_0;
+        Click actual(key);
+        Click expected{false, key, '0'};
+        QCOMPARE(actual, expected);
+    }
+
+    void test_make_click_key_1()
+    {
+        Qt::Key key = Qt::Key_1;
+        Click actual(key);
+        Click expected{false, key, '1'};
+        QCOMPARE(actual, expected);
+    }
+
+    void test_make_click_key_2()
+    {
+        Qt::Key key = Qt::Key_2;
+        Click actual(key);
+        Click expected{false, key, '2'};
+        QCOMPARE(actual, expected);
+    }
+
+    void test_make_click_key_3()
+    {
+        Qt::Key key = Qt::Key_3;
+        Click actual(key);
+        Click expected{false, key, '3'};
+        QCOMPARE(actual, expected);
+    }
+
+    void test_make_click_key_4()
+    {
+        Qt::Key key = Qt::Key_4;
+        Click actual(key);
+        Click expected{false, key, '4'};
+        QCOMPARE(actual, expected);
+    }
+
+    void test_make_click_key_5()
+    {
+        Qt::Key key = Qt::Key_5;
+        Click actual(key);
+        Click expected{false, key, '5'};
+        QCOMPARE(actual, expected);
+    }
+
+    void test_make_click_key_6()
+    {
+        Qt::Key key = Qt::Key_6;
+        Click actual(key);
+        Click expected{false, key, '6'};
+        QCOMPARE(actual, expected);
+    }
+
+    void test_make_click_key_7()
+    {
+        Qt::Key key = Qt::Key_7;
+        Click actual(key);
+        Click expected{false, key, '7'};
+        QCOMPARE(actual, expected);
+    }
+
+    void test_make_click_key_8()
+    {
+        Qt::Key key = Qt::Key_8;
+        Click actual(key);
+        Click expected{false, key, '8'};
+        QCOMPARE(actual, expected);
+    }
+
+    void test_make_click_key_9()
+    {
+        Qt::Key key = Qt::Key_9;
+        Click actual(key);
+        Click expected{false, key, '9'};
+        QCOMPARE(actual, expected);
+    }
+
+    void test_make_input_set()
+    {
+        auto actual = ClickEffect::InputSet::make("|1.|1|.1|.1|");
+        const QString expected_value{"1.1.1.1"};
+        const QList<int> expected_pos_set{0,2,3,5,7};
+
+        QCOMPARE(actual.start_value, expected_value);
+        QCOMPARE(actual.click_pos, expected_pos_set);
+    }
+
+    void test_make_valid_cases_insert()
+    {
+        auto test_factory = Valid(Click(Qt::Key_0));
+        auto actual = test_factory.make(ClickEffect::InputSet::make("1|.1|.1.1"));
+        QCOMPARE(actual.count(), 2);
+        QCOMPARE((actual[0].start), (State{"1.1.1.1", 1}));
+        QCOMPARE((actual[0].expected), (State{"10.1.1.1", 2}));
+        QCOMPARE((actual[0].finish_value), ("10.1.1.1"));
+        QCOMPARE((actual[1].start), (State{"1.1.1.1", 3}));
+        QCOMPARE((actual[1].expected), (State{"1.10.1.1", 4}));
+        QCOMPARE((actual[1].finish_value), ("1.10.1.1"));
+    }
+
+    void test_make_valid_cases_remove_forward()
+    {
+        auto test_factory = Valid(Click(Qt::Key_Delete));
+        auto actual = test_factory.make(ClickEffect::InputSet::make("1|2.12.12.12"));
+        QCOMPARE(actual.count(), 1);
+        QCOMPARE((actual[0].start), (State{"12.12.12.12", 1}));
+        QCOMPARE((actual[0].expected), (State{"1.12.12.12", 1}));
+        QCOMPARE((actual[0].finish_value), ("1.12.12.12"));
+    }
+
+    void test_make_valid_cases_remove_backward()
+    {
+        auto test_factory = Valid(Click(Qt::Key_Backspace));
+        auto actual = test_factory.make(ClickEffect::InputSet::make("12|.12.12.12"));
+        QCOMPARE(actual.count(), 1);
+        QCOMPARE((actual[0].start), (State{"12.12.12.12", 2}));
+        QCOMPARE((actual[0].expected), (State{"1.12.12.12", 1}));
+        QCOMPARE((actual[0].finish_value), ("1.12.12.12"));
+    }
+
+    void test_make_invalid_cases_insert()
+    {
+        auto test_factory = Invalid(Click(Qt::Key_0));
+        auto actual = test_factory.make(ClickEffect::InputSet::make("123|.0.0.0"));
+        QCOMPARE(actual.count(), 1);
+        QCOMPARE((actual[0].start), (State{"123.0.0.0", 3}));
+        QCOMPARE((actual[0].expected), (State{"123.0.0.0", 3}));
+        QCOMPARE((actual[0].finish_value), ("123.0.0.0"));
+    }
+
+    void test_make_moveonly_cases_insert()
+    {
+        auto test_factory = OnlyPosMove(Click('.'));
+        auto actual = test_factory.make(ClickEffect::InputSet::make("123|.0.0.0"));
+        QCOMPARE(actual.count(), 1);
+        QCOMPARE((actual[0].start), (State{"123.0.0.0", 3}));
+        QCOMPARE((actual[0].expected), (State{"123.0.0.0", 4}));
+        QCOMPARE((actual[0].finish_value), ("123.0.0.0"));
+    }
+
+    void test_make_moveonly_cases_remove_forward()
+    {
+        auto test_factory = OnlyPosMove(Click(Qt::Key_Delete));
+        auto actual = test_factory.make(ClickEffect::InputSet::make("123|.0.0.0"));
+        QCOMPARE(actual.count(), 1);
+        QCOMPARE((actual[0].start), (State{"123.0.0.0", 3}));
+        QCOMPARE((actual[0].expected), (State{"123.0.0.0", 4}));
+        QCOMPARE((actual[0].finish_value), ("123.0.0.0"));
+    }
+
+    void test_make_moveonly_cases_remove_backward()
+    {
+        auto test_factory = OnlyPosMove(Click(Qt::Key_Backspace));
+        auto actual = test_factory.make(ClickEffect::InputSet::make("123.|0.0.0"));
+        QCOMPARE(actual.count(), 1);
+        QCOMPARE((actual[0].start), (State{"123.0.0.0", 4}));
+        QCOMPARE((actual[0].expected), (State{"123.0.0.0", 3}));
+        QCOMPARE((actual[0].finish_value), ("123.0.0.0"));
+    }
+
+    void test_make_test_name_insert_ch()
+    {
+        const QString expected = "enter . to 12|.12.12.12";
+        const QString actual = Click('.').make_test_name(state);
+        QCOMPARE(actual, expected);
+    }
+
+    void test_make_test_name_insert_key()
+    {
+        const QString expected = "enter 0 to 12|.12.12.12";
+        const QString actual = Click(Qt::Key_0).make_test_name(state);
+        QCOMPARE(actual, expected);
+    }
+
+    void test_make_test_name_remove_forward()
+    {
+        const QString expected = "backspace in 12|.12.12.12";
+        const QString actual = Click(Qt::Key_Backspace).make_test_name(state);
+        QCOMPARE(actual, expected);
+    }
+
+    void test_make_test_name_remov_backward()
+    {
+        const QString expected = "delete in 12|.12.12.12";
+        const QString actual = Click(Qt::Key_Delete).make_test_name(state);
+        QCOMPARE(actual, expected);
     }
 };
 
