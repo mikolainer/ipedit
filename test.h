@@ -47,6 +47,161 @@ public:
     }
 };
 
+struct Click{
+    bool is_char;
+    Qt::Key click_key;
+    char click_char;
+
+    const QString operation_name(){
+        if (click_key == Qt::Key_Backspace)
+            return "backspace in";
+
+        if (click_key == Qt::Key_Delete)
+            return "delete in";
+
+        return "enter to";
+    }
+};
+
+struct State{
+    QString value;
+    int pos;
+};
+
+struct Case{
+    char* name;
+    Click key;
+    State start;
+    State expected;
+    QString finish_value;
+};
+
+class ClickEffect{
+public:
+    struct InputSet{
+        constexpr static const char click_pos_marker{'|'};
+
+        QString start_value;
+        QList<int> click_pos;
+
+        static const InputSet make(const QString& format);
+        QList<State> start_states() const;
+    };
+
+public:
+    ClickEffect(const Click& key)
+        : m_key(key)
+    {}
+
+    virtual const QList<Case> make(const InputSet& format) const
+    {
+        QList<Case> result;
+
+        for (auto pos : format.click_pos)
+        {
+            Case test;
+            test.key = m_key;
+            test.start = {format.start_value, pos};
+            test.expected = new_value(test.start);
+            test.finish_value = finish_value(test.expected.value);
+            test.name = QString("%1 %2")
+                .arg(test.key.operation_name(), test.start.value)
+                .toUtf8().data();
+        }
+
+        return result;
+    };
+
+protected:
+    virtual State new_value(const State& start) const =0;
+    virtual QString finish_value(const QString& expected) const =0;
+
+    const Click m_key;
+};
+
+class Valid : public ClickEffect
+{
+public:
+    Valid(const Click& key) : ClickEffect(key) {};
+
+protected:
+    State new_value(const State& start) const override{
+
+    }
+    QString finish_value(const QString& expected) const override{
+
+    }
+};
+
+class Invalid : public ClickEffect
+{
+public:
+    Invalid(const Click& key) : ClickEffect(key) {};
+
+protected:
+    State new_value(const State& start) const override{
+
+    }
+    QString finish_value(const QString& expected) const override{
+
+    }
+};
+
+class OnlyPosMove : public ClickEffect
+{
+public:
+    OnlyPosMove(const Click& key) : ClickEffect(key) {};
+
+protected:
+    State new_value(const State& start) const override{
+
+    }
+    QString finish_value(const QString& expected) const override{
+
+    }
+};
+
+class TestDataFactory
+{
+public:
+    void fill_data(const QList<Case>& tests){
+        for (const Case& test : tests)
+            fill_data(test);
+    };
+
+    virtual void make_schema() const =0;
+    virtual void fill_data(const Case& test) const =0;
+};
+
+class OneClickTestFactory : public TestDataFactory
+{
+public:
+    OneClickTestFactory() : TestDataFactory() {}
+    void make_schema() const override
+    {
+        QTest::addColumn<const QString>("start_value");
+        QTest::addColumn<const int>("start_pos");
+
+        QTest::addColumn<const bool>("is_key_char");
+        QTest::addColumn<const Qt::Key>("click_key");
+        QTest::addColumn<const char>("click_char");
+
+        QTest::addColumn<const QString>("ip_edit_expected_value");
+        QTest::addColumn<const int>("ip_edit_expected_pos");
+
+        QTest::addColumn<const QString>("ip_edit_finish_expected_value");
+    }
+
+    void fill_data(const Case& test) const override
+    {
+        QTest::newRow(test.name)
+        << test.start.value << test.start.pos // start
+        << test.key.is_char << test.key.click_key << test.key.click_char
+        << test.expected.value << test.expected.pos // after click
+        << test.finish_value; // after finish
+    }
+};
+
 class Test_IpEdit : public QObject
 { Q_OBJECT
     constexpr static const Qt::Key backspace_key = Qt::Key_Backspace;
@@ -59,17 +214,8 @@ public:
 
 private slots:
     void oneClick_data(){
-        QTest::addColumn<const QString>("start_value");
-        QTest::addColumn<const int>("start_pos");
-
-        QTest::addColumn<const bool>("is_key_char");
-        QTest::addColumn<const Qt::Key>("click_key");
-        QTest::addColumn<const char>("click_char");
-
-        QTest::addColumn<const QString>("ip_edit_expected_value");
-        QTest::addColumn<const int>("ip_edit_expected_pos");
-
-        QTest::addColumn<const QString>("ip_edit_finish_expected_value");
+        OneClickTestFactory case_factory;
+        case_factory.make_schema();
 
 //        QTest::newRow("test name")
 //            << "start_value" << start_pos
@@ -742,9 +888,188 @@ private slots:
             << "55.55.55.255"; // after finish
 
         // enter overflowed octet value
+        QTest::newRow("enter 3 to |55.55.55.55")
+            << "55.55.55.55" << 0 // start
+            << false << Qt::Key_3 << '3'
+            << "55.55.55.55" << 0 // after click
+            << "55.55.55.55"; // after finish
+
+        QTest::newRow("enter 3 to 5|5.55.55.55")
+            << "55.55.55.55" << 1 // start
+            << false << Qt::Key_3 << '3'
+            << "55.55.55.55" << 1 // after click
+            << "55.55.55.55"; // after finish
+
+        QTest::newRow("enter 3 to 55|.55.55.55")
+            << "55.55.55.55" << 2 // start
+            << false << Qt::Key_3 << '3'
+            << "55.55.55.55" << 2 // after click
+            << "55.55.55.55"; // after finish
+
+        QTest::newRow("enter 3 to 55.|55.55.55")
+            << "55.55.55.55" << 3 // start
+            << false << Qt::Key_3 << '3'
+            << "55.55.55.55" << 3 // after click
+            << "55.55.55.55"; // after finish
+
+        QTest::newRow("enter 3 to 55.5|5.55.55")
+            << "55.55.55.55" << 4 // start
+            << false << Qt::Key_3 << '3'
+            << "55.55.55.55" << 4 // after click
+            << "55.55.55.55"; // after finish
+
+        QTest::newRow("enter 3 to 55.55|.55.55")
+            << "55.55.55.55" << 5 // start
+            << false << Qt::Key_3 << '3'
+            << "55.55.55.55" << 5 // after click
+            << "55.55.55.55"; // after finish
+
+        QTest::newRow("enter 3 to 55.55.|55.55")
+            << "55.55.55.55" << 6 // start
+            << false << Qt::Key_3 << '3'
+            << "55.55.55.55" << 6 // after click
+            << "55.55.55.55"; // after finish
+
+        QTest::newRow("enter 3 to 55.55.5|5.55")
+            << "55.55.55.55" << 7 // start
+            << false << Qt::Key_3 << '3'
+            << "55.55.55.55" << 7 // after click
+            << "55.55.55.55"; // after finish
+
+        QTest::newRow("enter 3 to 55.55.55|.55")
+            << "55.55.55.55" << 8 // start
+            << false << Qt::Key_3 << '3'
+            << "55.55.55.55" << 8 // after click
+            << "55.55.55.55"; // after finish
+
+        QTest::newRow("enter 3 to 55.55.55.|55")
+            << "55.55.55.55" << 9 // start
+            << false << Qt::Key_3 << '3'
+            << "55.55.55.55" << 9 // after click
+            << "55.55.55.55"; // after finish
+
+        QTest::newRow("enter 3 to 55.55.55.5|5")
+            << "55.55.55.55" << 10 // start
+            << false << Qt::Key_3 << '3'
+            << "55.55.55.55" << 10 // after click
+            << "55.55.55.55"; // after finish
+
+        QTest::newRow("enter 3 to 55.55.55.55|")
+            << "55.55.55.55" << 11 // start
+            << false << Qt::Key_3 << '3'
+            << "55.55.55.55" << 11 // after click
+            << "55.55.55.55"; // after finish
 
         // === special chars
         // before dot
+        QTest::newRow("enter space to 0|.0.0.0")
+            << "0.0.0.0" << 1 // start
+            << false << Qt::Key_Space << ' '
+            << "0.0.0.0" << 2 // after click
+            << "0.0.0.0"; // after finish
+
+        QTest::newRow("enter space to 0.0|.0.0")
+            << "0.0.0.0" << 3 // start
+            << false << Qt::Key_Space << ' '
+            << "0.0.0.0" << 4 // after click
+            << "0.0.0.0"; // after finish
+
+        QTest::newRow("enter space to 0.0.0|.0")
+            << "0.0.0.0" << 5 // start
+            << false << Qt::Key_Space << ' '
+            << "0.0.0.0" << 6 // after click
+            << "0.0.0.0"; // after finish
+
+        QTest::newRow("enter . to 0|.0.0.0")
+            << "0.0.0.0" << 1 // start
+            << true << Qt::Key_Space << '.'
+            << "0.0.0.0" << 2 // after click
+            << "0.0.0.0"; // after finish
+
+        QTest::newRow("enter . to 0.0|.0.0")
+            << "0.0.0.0" << 3 // start
+            << true << Qt::Key_Space << '.'
+            << "0.0.0.0" << 4 // after click
+            << "0.0.0.0"; // after finish
+
+        QTest::newRow("enter . to 0.0.0|.0")
+            << "0.0.0.0" << 5 // start
+            << true << Qt::Key_Space << '.'
+            << "0.0.0.0" << 6 // after click
+            << "0.0.0.0"; // after finish
+
+        QTest::newRow("enter , to 0|.0.0.0")
+            << "0.0.0.0" << 1 // start
+            << true << Qt::Key_Space << ','
+            << "0.0.0.0" << 2 // after click
+            << "0.0.0.0"; // after finish
+
+        QTest::newRow("enter , to 0.0|.0.0")
+            << "0.0.0.0" << 3 // start
+            << true << Qt::Key_Space << ','
+            << "0.0.0.0" << 4 // after click
+            << "0.0.0.0"; // after finish
+
+        QTest::newRow("enter , to 0.0.0|.0")
+            << "0.0.0.0" << 5 // start
+            << true << Qt::Key_Space << ','
+            << "0.0.0.0" << 6 // after click
+            << "0.0.0.0"; // after finish
+
+        QTest::newRow("enter space to 1|.1.1.1")
+            << "1.1.1.1" << 1 // start
+            << false << Qt::Key_Space << ' '
+            << "1.1.1.1" << 2 // after click
+            << "1.1.1.1"; // after finish
+
+        QTest::newRow("enter space to 1.1|.1.1")
+            << "1.1.1.1" << 3 // start
+            << false << Qt::Key_Space << ' '
+            << "1.1.1.1" << 4 // after click
+            << "1.1.1.1"; // after finish
+
+        QTest::newRow("enter space to 1.1.1|.1")
+            << "1.1.1.1" << 5 // start
+            << false << Qt::Key_Space << ' '
+            << "1.1.1.1" << 6 // after click
+            << "1.1.1.1"; // after finish
+
+        QTest::newRow("enter . to 1|.1.1.1")
+            << "1.1.1.1" << 1 // start
+            << true << Qt::Key_Space << '.'
+            << "1.1.1.1" << 2 // after click
+            << "1.1.1.1"; // after finish
+
+        QTest::newRow("enter . to 1.1|.1.1")
+            << "1.1.1.1" << 3 // start
+            << true << Qt::Key_Space << '.'
+            << "1.1.1.1" << 4 // after click
+            << "1.1.1.1"; // after finish
+
+        QTest::newRow("enter . to 1.1.1|.1")
+            << "1.1.1.1" << 5 // start
+            << true << Qt::Key_Space << '.'
+            << "1.1.1.1" << 6 // after click
+            << "1.1.1.1"; // after finish
+
+        QTest::newRow("enter , to 1|.1.1.1")
+            << "1.1.1.1" << 1 // start
+            << true << Qt::Key_Space << ','
+            << "1.1.1.1" << 2 // after click
+            << "1.1.1.1"; // after finish
+
+        QTest::newRow("enter , to 1.1|.1.1")
+            << "1.1.1.1" << 3 // start
+            << true << Qt::Key_Space << ','
+            << "1.1.1.1" << 4 // after click
+            << "1.1.1.1"; // after finish
+
+        QTest::newRow("enter , to 1.1.1|.1")
+            << "1.1.1.1" << 5 // start
+            << true << Qt::Key_Space << ','
+            << "1.1.1.1" << 6 // after click
+            << "1.1.1.1"; // after finish
+
         // after dot
         // between digits
 

@@ -62,10 +62,8 @@ void Test_IpEdit::clear_all_by_delete_0_0_0_0()
 
 void DirtyTestRunner::run_all()
 {
-    {
-        auto test = Test_IpEdit();
-        QTest::qExec(&test);
-    }
+    auto test = Test_IpEdit();
+    QTest::qExec(&test);
 }
 
 LineEditWithIpValidatorTest::LineEditWithIpValidatorTest(const QString &text, QWidget *parent)
@@ -74,3 +72,37 @@ LineEditWithIpValidatorTest::LineEditWithIpValidatorTest(const QString &text, QW
     IntIpValidator::set_to(this);
 }
 
+
+ClickEffect::InputSet const ClickEffect::InputSet::make(const QString &format)
+{
+    InputSet result;
+    auto it = format.begin();
+    const auto the_end = format.end();
+
+    int current_pos = 0;
+    while (it != the_end){
+        QChar ch = *it;
+        if (ch == click_pos_marker){
+            Q_ASSERT(!result.click_pos.contains(current_pos));
+            result.click_pos.append(current_pos);
+        }else{
+            ++current_pos;
+            result.start_value.append(ch);
+        }
+    }
+
+    Q_ASSERT(result.click_pos.count() > 0);
+    return result;
+}
+
+QList<State> ClickEffect::InputSet::start_states() const {
+    QList<State> result;
+    for (const int start_pos : click_pos){
+        State start_state;
+        start_state.value = start_value;
+        start_state.pos = start_pos;
+        result.append(start_state);
+    }
+
+    return result;
+}
