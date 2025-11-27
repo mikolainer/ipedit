@@ -164,8 +164,7 @@ struct Click{
                 operation_name(),
                 is_remove ? "in" : QString("%1 to").arg(click_char),
                 start_state.toString()
-            )
-            .toUtf8().data();
+            );
     }
 
     QString operation_name() const{
@@ -180,14 +179,14 @@ struct Click{
 };
 
 struct Case{
-    char* name;
+    QString name;
     Click key;
     State start;
     State expected;
     QString finish_value;
 
     bool operator==(const Case& other) const{
-        return std::strcmp(other.name, name) == 0
+        return other.name == name
             && other.key == key
             && other.start == start
             && other.expected == expected
@@ -223,7 +222,7 @@ public:
             test.start = {format.start_value, pos};
             test.expected = new_value(test.start);
             test.finish_value = finish_value(test.expected.value);
-            test.name = m_key.make_test_name(test.start).toLatin1().data();
+            test.name = m_key.make_test_name(test.start);
             result.append(test);
         }
 
@@ -304,9 +303,9 @@ protected:
 class TestDataFactory
 {
 public:
-    void fill_data(const QList<Case>& tests){
+    virtual void fill_data(const QList<Case>& tests){
         for (const Case& test : tests)
-            fill_data(test);
+            this->fill_data(test);
     };
 
     virtual void make_schema() const =0;
@@ -334,7 +333,7 @@ public:
 
     void fill_data(const Case& test) const override
     {
-        QTest::newRow(test.name)
+        QTest::newRow(test.name.toUtf8().data())
         << test.start.value << test.start.pos // start
         << test.key.is_char << test.key.click_key << test.key.click_char
         << test.expected.value << test.expected.pos // after click
@@ -666,8 +665,8 @@ public:
 
 private slots:
     void oneClick_data(){
-        OneClickTestFactory case_factory;
-        case_factory.make_schema();
+        OneClickTestFactory test_factory;
+        test_factory.make_schema();
 
 //        QTest::newRow("test name")
 //            << "start_value" << start_pos
@@ -676,275 +675,44 @@ private slots:
 //            << "ip_edit_finish_expected_value"
 
         // === enter zero ===
-        // enter 0 around zero octets
-        QTest::newRow("enter 0 to |0.0.0.0")
-            << "0.0.0.0" << 0 // start
-            << false << Qt::Key_0 << '0'
-            << "0.0.0.0" << 1 // after click
-            << "0.0.0.0"; // after finish
+        {
+            const auto case_factory = OnlyPosMove(Click(Qt::Key_0));
+            test_factory.TestDataFactory::fill_data(case_factory.make(
+                ClickEffect::InputSet::make("|0.|0.|0.|0")
+            ));
+        }
+        {
+            const auto case_factory = Invalid(Click(Qt::Key_0));
+            test_factory.TestDataFactory::fill_data(case_factory.make(
+                ClickEffect::InputSet::make("0|.0|.0|.0|")
+            ));
 
-        QTest::newRow("enter 0 to 0|.0.0.0")
-            << "0.0.0.0" << 1 // start
-            << false << Qt::Key_0 << '0'
-            << "0.0.0.0" << 1 // after click
-            << "0.0.0.0"; // after finish
+            test_factory.TestDataFactory::fill_data(case_factory.make(
+                ClickEffect::InputSet::make("|1.|1.|1.|1")
+            ));
 
-        QTest::newRow("enter 0 to 0.|0.0.0")
-            << "0.0.0.0" << 2 // start
-            << false << Qt::Key_0 << '0'
-            << "0.0.0.0" << 3 // after click
-            << "0.0.0.0"; // after finish
+            test_factory.TestDataFactory::fill_data(case_factory.make(
+                ClickEffect::InputSet::make("|12.|12.|12.|12")
+            ));
 
-        QTest::newRow("enter 0 to 0.0|.0.0")
-            << "0.0.0.0" << 3 // start
-            << false << Qt::Key_0 << '0'
-            << "0.0.0.0" << 3 // after click
-            << "0.0.0.0"; // after finish
+            test_factory.TestDataFactory::fill_data(case_factory.make(
+                ClickEffect::InputSet::make("|1|2|3|.|1|2|3|.|1|2|3|.|1|2|3|")
+            ));
+        }
+        {
+            const auto case_factory = Valid(Click(Qt::Key_0));
+            test_factory.TestDataFactory::fill_data(case_factory.make(
+                ClickEffect::InputSet::make("1|.1|.1|.1|")
+            ));
 
-        QTest::newRow("enter 0 to 0.0.|0.0")
-            << "0.0.0.0" << 4 // start
-            << false << Qt::Key_0 << '0'
-            << "0.0.0.0" << 5 // after click
-            << "0.0.0.0"; // after finish
+            test_factory.TestDataFactory::fill_data(case_factory.make(
+                ClickEffect::InputSet::make("12|.12|.12|.12|")
+            ));
 
-        QTest::newRow("enter 0 to 0.0.0|.0")
-            << "0.0.0.0" << 5 // start
-            << false << Qt::Key_0 << '0'
-            << "0.0.0.0" << 5 // after click
-            << "0.0.0.0"; // after finish
-
-        QTest::newRow("enter 0 to 0.0.0.|0")
-            << "0.0.0.0" << 6 // start
-            << false << Qt::Key_0 << '0'
-            << "0.0.0.0" << 7 // after click
-            << "0.0.0.0"; // after finish
-
-        QTest::newRow("enter 0 to 0.0.0.0|")
-            << "0.0.0.0" << 7 // start
-            << false << Qt::Key_0 << '0'
-            << "0.0.0.0" << 7 // after click
-            << "0.0.0.0"; // after finish
-
-        // enter 0 around one digit octets
-        QTest::newRow("enter 0 to |1.1.1.1")
-            << "1.1.1.1" << 0 // start
-            << false << Qt::Key_0 << '0'
-            << "1.1.1.1" << 0 // after click
-            << "1.1.1.1"; // after finish
-
-        QTest::newRow("enter 0 to 1|.1.1.1")
-            << "1.1.1.1" << 1 // start
-            << false << Qt::Key_0 << '0'
-            << "10.1.1.1" << 2 // after click
-            << "10.1.1.1"; // after finish
-
-        QTest::newRow("enter 0 to 1.|1.1.1")
-            << "1.1.1.1" << 2 // start
-            << false << Qt::Key_0 << '0'
-            << "1.1.1.1" << 2 // after click
-            << "1.1.1.1"; // after finish
-
-        QTest::newRow("enter 0 to 1.1|.1.1")
-            << "1.1.1.1" << 3 // start
-            << false << Qt::Key_0 << '0'
-            << "1.10.1.1" << 4 // after click
-            << "1.10.1.1"; // after finish
-
-        QTest::newRow("enter 0 to 1.1.|1.1")
-            << "1.1.1.1" << 4 // start
-            << false << Qt::Key_0 << '0'
-            << "1.1.1.1" << 4 // after click
-            << "1.1.1.1"; // after finish
-
-        QTest::newRow("enter 0 to 1.1.1|.1")
-            << "1.1.1.1" << 5 // start
-            << false << Qt::Key_0 << '0'
-            << "1.1.10.1" << 6 // after click
-            << "1.1.10.1"; // after finish
-
-        QTest::newRow("enter 0 to 1.1.1.|1")
-            << "1.1.1.1" << 6 // start
-            << false << Qt::Key_0 << '0'
-            << "1.1.1.1" << 6 // after click
-            << "1.1.1.1"; // after finish
-
-        QTest::newRow("enter 0 to 1.1.1.1|")
-            << "1.1.1.1" << 7 // start
-            << false << Qt::Key_0 << '0'
-            << "1.1.1.10" << 8 // after click
-            << "1.1.1.10"; // after finish
-
-        // enter 0 around two digit octet
-        QTest::newRow("enter 0 to |12.12.12.12")
-            << "12.12.12.12" << 0 // start
-            << false << Qt::Key_0 << '0'
-            << "12.12.12.12" << 0 // after click
-            << "12.12.12.12"; // after finish
-
-        QTest::newRow("enter 0 to 12|.12.12.12")
-            << "12.12.12.12" << 2 // start
-            << false << Qt::Key_0 << '0'
-            << "120.12.12.12" << 3 // after click
-            << "120.12.12.12"; // after finish
-
-        QTest::newRow("enter 0 to 12.|12.12.12")
-            << "12.12.12.12" << 3 // start
-            << false << Qt::Key_0 << '0'
-            << "12.12.12.12" << 3 // after click
-            << "12.12.12.12"; // after finish
-
-        QTest::newRow("enter 0 to 12.12|.12.12")
-            << "12.12.12.12" << 5 // start
-            << false << Qt::Key_0 << '0'
-            << "12.120.12.12" << 6 // after click
-            << "12.120.12.12"; // after finish
-
-        QTest::newRow("enter 0 to 12.12.|12.12")
-            << "12.12.12.12" << 6 // start
-            << false << Qt::Key_0 << '0'
-            << "12.12.12.12" << 6 // after click
-            << "12.12.12.12"; // after finish
-
-        QTest::newRow("enter 0 to 12.12.12|.12")
-            << "12.12.12.12" << 8 // start
-            << false << Qt::Key_0 << '0'
-            << "12.12.120.12" << 9 // after click
-            << "12.12.120.12"; // after finish
-
-        QTest::newRow("enter 0 to 12.12.12.|12")
-            << "12.12.12.12" << 9 // start
-            << false << Qt::Key_0 << '0'
-            << "12.12.12.12" << 9 // after click
-            << "12.12.12.12"; // after finish
-
-        QTest::newRow("enter 0 to 12.12.12.12|")
-            << "12.12.12.12" << 11 // start
-            << false << Qt::Key_0 << '0'
-            << "12.12.12.120" << 12 // after click
-            << "12.12.12.120"; // after finish
-
-        // enter 0 to mid of two digit octet
-        QTest::newRow("enter 0 to 1|2.12.12.12")
-            << "12.12.12.12" << 1 // start
-            << false << Qt::Key_0 << '0'
-            << "102.12.12.12" << 2 // after click
-            << "102.12.12.12"; // after finish
-
-        QTest::newRow("enter 0 to 12.1|2.12.12")
-            << "12.12.12.12" << 4 // start
-            << false << Qt::Key_0 << '0'
-            << "12.102.12.12" << 5 // after click
-            << "12.102.12.12"; // after finish
-
-        QTest::newRow("enter 0 to 12.12.1|2.12")
-            << "12.12.12.12" << 7 // start
-            << false << Qt::Key_0 << '0'
-            << "12.12.102.12" << 8 // after click
-            << "12.12.102.12"; // after finish
-
-        QTest::newRow("enter 0 to 12.12.12.1|2")
-            << "12.12.12.12" << 10 // start
-            << false << Qt::Key_0 << '0'
-            << "12.12.12.102" << 11 // after click
-            << "12.12.12.102"; // after finish
-
-        // enter 0 around three digit octet
-        QTest::newRow("enter 0 to |123.123.123.123")
-            << "123.123.123.123" << 0 // start
-            << false << Qt::Key_0 << '0'
-            << "123.123.123.123" << 0 // after click
-            << "123.123.123.123"; // after finish
-
-        QTest::newRow("enter 0 to 123|.123.123.123")
-            << "123.123.123.123" << 3 // start
-            << false << Qt::Key_0 << '0'
-            << "123.123.123.123" << 3 // after click
-            << "123.123.123.123"; // after finish
-
-        QTest::newRow("enter 0 to 123.|123.123.123")
-            << "123.123.123.123" << 4 // start
-            << false << Qt::Key_0 << '0'
-            << "123.123.123.123" << 4 // after click
-            << "123.123.123.123"; // after finish
-
-        QTest::newRow("enter 0 to 123.123|.123.123")
-            << "123.123.123.123" << 7 // start
-            << false << Qt::Key_0 << '0'
-            << "123.123.123.123" << 7 // after click
-            << "123.123.123.123"; // after finish
-
-        QTest::newRow("enter 0 to 123.123.|123.123")
-            << "123.123.123.123" << 8 // start
-            << false << Qt::Key_0 << '0'
-            << "123.123.123.123" << 8 // after click
-            << "123.123.123.123"; // after finish
-
-        QTest::newRow("enter 0 to 123.123.123|.123")
-            << "123.123.123.123" << 11 // start
-            << false << Qt::Key_0 << '0'
-            << "123.123.123.123" << 11 // after click
-            << "123.123.123.123"; // after finish
-
-        QTest::newRow("enter 0 to 123.123.123.|123")
-            << "123.123.123.123" << 12 // start
-            << false << Qt::Key_0 << '0'
-            << "123.123.123.123" << 12 // after click
-            << "123.123.123.123"; // after finish
-
-        QTest::newRow("enter 0 to 123.123.123.123|")
-            << "123.123.123.123" << 15 // start
-            << false << Qt::Key_0 << '0'
-            << "123.123.123.123" << 15 // after click
-            << "123.123.123.123"; // after finish
-
-        // enter 0 to mid of three digit octet
-        QTest::newRow("enter 0 to 1|23.123.123.123")
-            << "123.123.123.123" << 1 // start
-            << false << Qt::Key_0 << '0'
-            << "123.123.123.123" << 1 // after click
-            << "123.123.123.123"; // after finish
-
-        QTest::newRow("enter 0 to 12|3.123.123.123")
-            << "123.123.123.123" << 2 // start
-            << false << Qt::Key_0 << '0'
-            << "123.123.123.123" << 2 // after click
-            << "123.123.123.123"; // after finish
-
-        QTest::newRow("enter 0 to 123.1|23.123.123")
-            << "123.123.123.123" << 5 // start
-            << false << Qt::Key_0 << '0'
-            << "123.123.123.123" << 5 // after click
-            << "123.123.123.123"; // after finish
-
-        QTest::newRow("enter 0 to 123.12|3.123.123")
-            << "123.123.123.123" << 6 // start
-            << false << Qt::Key_0 << '0'
-            << "123.123.123.123" << 6 // after click
-            << "123.123.123.123"; // after finish
-
-        QTest::newRow("enter 0 to 123.123.1|23.123")
-            << "123.123.123.123" << 9 // start
-            << false << Qt::Key_0 << '0'
-            << "123.123.123.123" << 9 // after click
-            << "123.123.123.123"; // after finish
-
-        QTest::newRow("enter 0 to 123.123.12|3.123")
-            << "123.123.123.123" << 10 // start
-            << false << Qt::Key_0 << '0'
-            << "123.123.123.123" << 10 // after click
-            << "123.123.123.123"; // after finish
-
-        QTest::newRow("enter 0 to 123.123.123.1|23")
-            << "123.123.123.123" << 13 // start
-            << false << Qt::Key_0 << '0'
-            << "123.123.123.123" << 13 // after click
-            << "123.123.123.123"; // after finish
-
-        QTest::newRow("enter 0 to 123.123.123.12|3")
-            << "123.123.123.123" << 14 // start
-            << false << Qt::Key_0 << '0'
-            << "123.123.123.123" << 14 // after click
-            << "123.123.123.123"; // after finish
+            test_factory.TestDataFactory::fill_data(case_factory.make(
+                ClickEffect::InputSet::make("1|2.1|2.1|2.1|2")
+            ));
+        }
 
         // === enter non zero digit ===
         // enter 1 around zero octet
