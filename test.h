@@ -1473,19 +1473,6 @@ private slots:
             });
         }
 
-        // === enter to int ===
-        {
-            // enter zero to int value
-            // enter non zero digit to int value
-            // enter special char to int value
-        }
-
-        // === max int value ===
-        {
-            // enter max valid int value
-            // enter overflowed int value
-        }
-
         // === rermove dot ===
         {
             const auto case_factory = OnlyPosMove(Click(Qt::Key_Delete));
@@ -1605,17 +1592,85 @@ private slots:
 
         // === remove one digit octet ===
         {
+            test_factory.fill_data({
+                "enter ` ` to |1.1.1.1",
+                Click(Qt::Key_Delete),
+                {"1.1.1.1", 0},
+                {".1.1.1", 0},
+                "0.1.1.1"
+            });
+            test_factory.fill_data({
+                "enter ` ` to 1|.1.1.1",
+                Click(Qt::Key_Backspace),
+                {"1.1.1.1", 1},
+                {".1.1.1", 0},
+                "0.1.1.1"
+            });
 
+            test_factory.fill_data({
+                "enter ` ` to 1.|1.1.1",
+                Click(Qt::Key_Delete),
+                {"1.1.1.1", 2},
+                {"1..1.1", 2},
+                "1.0.1.1"
+            });
+            test_factory.fill_data({
+                "enter ` ` to 1.1|.1.1",
+                Click(Qt::Key_Backspace),
+                {"1.1.1.1", 3},
+                {"1..1.1", 2},
+                "1.0.1.1"
+            });
+
+            test_factory.fill_data({
+                "enter ` ` to 1.1.|1.1",
+                Click(Qt::Key_Delete),
+                {"1.1.1.1", 4},
+                {"1.1..1", 4},
+                "1.1.0.1"
+            });
+            test_factory.fill_data({
+                "enter ` ` to 1.1.1|.1",
+                Click(Qt::Key_Backspace),
+                {"1.1.1.1", 5},
+                {"1.1..1", 4},
+                "1.1.0.1"
+            });
+
+            test_factory.fill_data({
+                "enter ` ` to 1.1.1.|1",
+                Click(Qt::Key_Delete),
+                {"1.1.1.1", 6},
+                {"1.1.1.", 6},
+                "1.1.1.0"
+            });
+            test_factory.fill_data({
+                "enter ` ` to 1.1.1.1|",
+                Click(Qt::Key_Backspace),
+                {"1.1.1.1", 7},
+                {"1.1.1.", 6},
+                "1.1.1.0"
+            });
         }
 
-        // === remove start of two digit octet ===
+        // === remove in two digit octet ===
         {
-
+            const auto case_factory = Valid(Click(Qt::Key_Delete));
+            test_factory.TestDataFactory::fill_data(case_factory.make(
+                ClickEffect::InputSet::make("|1|2.|1|2.|1|2.|1|2")
+            ));
+            test_factory.TestDataFactory::fill_data(case_factory.make(
+                ClickEffect::InputSet::make("|1|0.|1|0.|1|0.|1|0")
+            ));
         }
-
-        // === remove end of two digit octet ===
         {
-
+            const auto case_factory = Valid(Click(Qt::Key_Backspace));
+            test_factory.TestDataFactory::fill_data(case_factory.make(
+                ClickEffect::InputSet::make("1|2|.1|2|.1|2|.1|2|")
+            ));
+            test_factory.TestDataFactory::fill_data(case_factory.make(
+                ClickEffect::InputSet::make("1|0|.1|0|.1|0|.1|0|")
+            ));
         }
 
         // === remove start of three digit octet ===
@@ -1644,6 +1699,31 @@ private slots:
         }
 
         // === remove end of int value ===
+        {
+
+        }
+
+        // === enter non zero to int value ===
+        {
+
+        }
+
+        // === enter zero to int value ===
+        {
+
+        }
+
+        // === enter special char to int value ===
+        {
+
+        }
+
+        // === enter max int value ===
+        {
+
+        }
+
+        // === enter overflowed int value ===
         {
 
         }
