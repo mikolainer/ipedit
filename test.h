@@ -1593,14 +1593,14 @@ private slots:
         // === remove one digit octet ===
         {
             test_factory.fill_data({
-                "enter ` ` to |1.1.1.1",
+                "delete in to |1.1.1.1",
                 Click(Qt::Key_Delete),
                 {"1.1.1.1", 0},
                 {".1.1.1", 0},
                 "0.1.1.1"
             });
             test_factory.fill_data({
-                "enter ` ` to 1|.1.1.1",
+                "backspace in to 1|.1.1.1",
                 Click(Qt::Key_Backspace),
                 {"1.1.1.1", 1},
                 {".1.1.1", 0},
@@ -1608,14 +1608,14 @@ private slots:
             });
 
             test_factory.fill_data({
-                "enter ` ` to 1.|1.1.1",
+                "delete in to 1.|1.1.1",
                 Click(Qt::Key_Delete),
                 {"1.1.1.1", 2},
                 {"1..1.1", 2},
                 "1.0.1.1"
             });
             test_factory.fill_data({
-                "enter ` ` to 1.1|.1.1",
+                "backspace in to 1.1|.1.1",
                 Click(Qt::Key_Backspace),
                 {"1.1.1.1", 3},
                 {"1..1.1", 2},
@@ -1623,14 +1623,14 @@ private slots:
             });
 
             test_factory.fill_data({
-                "enter ` ` to 1.1.|1.1",
+                "delete in to 1.1.|1.1",
                 Click(Qt::Key_Delete),
                 {"1.1.1.1", 4},
                 {"1.1..1", 4},
                 "1.1.0.1"
             });
             test_factory.fill_data({
-                "enter ` ` to 1.1.1|.1",
+                "backspace in to 1.1.1|.1",
                 Click(Qt::Key_Backspace),
                 {"1.1.1.1", 5},
                 {"1.1..1", 4},
@@ -1638,14 +1638,14 @@ private slots:
             });
 
             test_factory.fill_data({
-                "enter ` ` to 1.1.1.|1",
+                "delete in to 1.1.1.|1",
                 Click(Qt::Key_Delete),
                 {"1.1.1.1", 6},
                 {"1.1.1.", 6},
                 "1.1.1.0"
             });
             test_factory.fill_data({
-                "enter ` ` to 1.1.1.1|",
+                "backspace in 1.1.1.1|",
                 Click(Qt::Key_Backspace),
                 {"1.1.1.1", 7},
                 {"1.1.1.", 6},
@@ -1673,32 +1673,151 @@ private slots:
             ));
         }
 
-        // === remove start of three digit octet ===
+        // === remove in three digit octet ===
         {
-
+            const auto case_factory = Valid(Click(Qt::Key_Delete));
+            test_factory.TestDataFactory::fill_data(case_factory.make(
+                ClickEffect::InputSet::make("|1|2|3.|1|2|3.|1|2|3.|1|2|3")
+            ));
+            test_factory.TestDataFactory::fill_data(case_factory.make(
+                ClickEffect::InputSet::make("|1|2|0.|1|2|0.|1|2|0.|1|2|0")
+            ));
+            test_factory.TestDataFactory::fill_data(case_factory.make(
+                ClickEffect::InputSet::make("1|0|3.1|0|3.1|0|3.1|0|3")
+            ));
+            test_factory.fill_data({
+                "delete in |103.103.103.103",
+                Click(Qt::Key_Delete),
+                {"103.103.103.103", 0},
+                {"3.103.103.103", 0},
+                "3.103.103.103"
+            });
+            test_factory.fill_data({
+                "delete in 103.|103.103.103",
+                Click(Qt::Key_Delete),
+                {"103.103.103.103", 4},
+                {"103.3.103.103", 4},
+                "103.3.103.103"
+            });
+            test_factory.fill_data({
+                "delete in 103.103.|103.103",
+                Click(Qt::Key_Delete),
+                {"103.103.103.103", 8},
+                {"103.103.3.103", 8},
+                "103.103.3.103"
+            });
+            test_factory.fill_data({
+                "delete in 103.103.103.|103",
+                Click(Qt::Key_Delete),
+                {"103.103.103.103", 12},
+                {"103.103.103.3", 12},
+                "103.103.103.3"
+            });
+            test_factory.TestDataFactory::fill_data(case_factory.make(
+                ClickEffect::InputSet::make("1|0|0.1|0|0.1|0|0.1|0|0")
+            ));
+            test_factory.fill_data({
+                "delete in |100.100.100.100",
+                Click(Qt::Key_Delete),
+                {"100.100.100.100", 0},
+                {".100.100.100", 0},
+                ".100.100.100"
+            });
+            test_factory.fill_data({
+                "delete in 100.|100.100.100",
+                Click(Qt::Key_Delete),
+                {"100.100.100.100", 4},
+                {"100..100.100", 4},
+                "100..100.100"
+            });
+            test_factory.fill_data({
+                "delete in 100.100.|100.100",
+                Click(Qt::Key_Delete),
+                {"100.100.100.100", 8},
+                {"100.100..100", 8},
+                "100.100..100"
+            });
+            test_factory.fill_data({
+                "delete in 100.100.100.|100",
+                Click(Qt::Key_Delete),
+                {"100.100.100.100", 12},
+                {"100.100.100.", 12},
+                "100.100.100."
+            });
+        }
+        {
+            const auto case_factory = Valid(Click(Qt::Key_Backspace));
+            test_factory.TestDataFactory::fill_data(case_factory.make(
+                ClickEffect::InputSet::make("1|2|3|.1|2|3|.1|2|3|.1|2|3|")
+            ));
+            test_factory.TestDataFactory::fill_data(case_factory.make(
+                ClickEffect::InputSet::make("1|2|0|.1|2|0|.1|2|0|.1|2|0|")
+            ));
+            test_factory.TestDataFactory::fill_data(case_factory.make(
+                ClickEffect::InputSet::make("10|3|.10|3|.10|3|.10|3|")
+            ));
+            test_factory.fill_data({
+                "backspace in 1|03.103.103.103",
+                Click(Qt::Key_Backspace),
+                {"103.103.103.103", 1},
+                {"3.103.103.103", 0},
+                "3.103.103.103"
+            });
+            test_factory.fill_data({
+                "backspace in 103.1|03.103.103",
+                Click(Qt::Key_Backspace),
+                {"103.103.103.103", 5},
+                {"103.3.103.103", 4},
+                "103.3.103.103"
+            });
+            test_factory.fill_data({
+                "backspace in 103.103.1|03.103",
+                Click(Qt::Key_Backspace),
+                {"103.103.103.103", 9},
+                {"103.103.3.103", 8},
+                "103.103.3.103"
+            });
+            test_factory.fill_data({
+                "backspace in 103.103.103.1|03",
+                Click(Qt::Key_Backspace),
+                {"103.103.103.103", 13},
+                {"103.103.103.3", 12},
+                "103.103.103.3"
+            });
+            test_factory.TestDataFactory::fill_data(case_factory.make(
+                ClickEffect::InputSet::make("10|0|.10|0|.10|0|.10|0|")
+            ));
+            test_factory.fill_data({
+                "backspace in 1|00.100.100.100",
+                Click(Qt::Key_Backspace),
+                {"100.100.100.100", 1},
+                {".100.100.100", 0},
+                ".100.100.100"
+            });
+            test_factory.fill_data({
+                "backspace in 100.1|00.100.100",
+                Click(Qt::Key_Backspace),
+                {"100.100.100.100", 5},
+                {"100..100.100", 4},
+                "100..100.100"
+            });
+            test_factory.fill_data({
+                "backspace in 100.100.1|00.100",
+                Click(Qt::Key_Backspace),
+                {"100.100.100.100", 9},
+                {"100.100..100", 8},
+                "100.100..100"
+            });
+            test_factory.fill_data({
+                "backspace in 100.100.100.1|00",
+                Click(Qt::Key_Backspace),
+                {"100.100.100.100", 13},
+                {"100.100.100.", 12},
+                "100.100.100."
+            });
         }
 
-        // === remove end of three digit octet ===
-        {
-
-        }
-
-        // === remove mid of three digit octet ===
-        {
-
-        }
-
-        // === remove start of int value ===
-        {
-
-        }
-
-        // === remove mid of int value ===
-        {
-
-        }
-
-        // === remove end of int value ===
+        // === remove in int value ===
         {
 
         }
