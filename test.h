@@ -53,7 +53,7 @@ struct State{
 
     QString toString() const;
 
-    constexpr bool operator==(const State& other) const{
+    bool operator==(const State& other) const{
         return other.value == value
                && other.pos == pos;
     }
@@ -1855,6 +1855,7 @@ private slots:
         QFETCH(const Qt::Key, click_key);
         QFETCH(const char, click_char);
 
+/* For debug reason only (to set brakpoint)
         if (
             start_value == "1.1.1.1"
             &&
@@ -1868,12 +1869,15 @@ private slots:
             int a = 1;
             ++a;
         }
+*/
 
         auto ip_edit = std::make_unique<LineEditWithIpValidatorTest>(start_value);
         ip_edit->start_edit(start_pos);
 
+/* For debug reason only
         auto text_before = ip_edit->text();
         auto pos_before = ip_edit->cursorPosition();
+*/
 
         if (is_key_char)
             ip_edit->click(click_char);
@@ -1881,8 +1885,10 @@ private slots:
             ip_edit->click(click_key);
         ip_edit->check(ip_edit_expected_value, ip_edit_expected_pos);
 
+/* For debug reason only
         auto text_after = ip_edit->text();
         auto pos_after = ip_edit->cursorPosition();
+*/
 
         ip_edit->finish_edit();
         ip_edit->check(ip_edit_finish_expected_value);
