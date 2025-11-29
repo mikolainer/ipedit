@@ -1600,28 +1600,12 @@ private slots:
                 "0.1.1.1"
             });
             test_factory.fill_data({
-                "backspace in to 1|.1.1.1",
-                Click(Qt::Key_Backspace),
-                {"1.1.1.1", 1},
-                {".1.1.1", 0},
-                "0.1.1.1"
-            });
-
-            test_factory.fill_data({
                 "delete in to 1.|1.1.1",
                 Click(Qt::Key_Delete),
                 {"1.1.1.1", 2},
                 {"1..1.1", 2},
                 "1.0.1.1"
             });
-            test_factory.fill_data({
-                "backspace in to 1.1|.1.1",
-                Click(Qt::Key_Backspace),
-                {"1.1.1.1", 3},
-                {"1..1.1", 2},
-                "1.0.1.1"
-            });
-
             test_factory.fill_data({
                 "delete in to 1.1.|1.1",
                 Click(Qt::Key_Delete),
@@ -1630,19 +1614,33 @@ private slots:
                 "1.1.0.1"
             });
             test_factory.fill_data({
-                "backspace in to 1.1.1|.1",
-                Click(Qt::Key_Backspace),
-                {"1.1.1.1", 5},
-                {"1.1..1", 4},
-                "1.1.0.1"
-            });
-
-            test_factory.fill_data({
                 "delete in to 1.1.1.|1",
                 Click(Qt::Key_Delete),
                 {"1.1.1.1", 6},
                 {"1.1.1.", 6},
                 "1.1.1.0"
+            });
+
+            test_factory.fill_data({
+                "backspace in to 1|.1.1.1",
+                Click(Qt::Key_Backspace),
+                {"1.1.1.1", 1},
+                {".1.1.1", 0},
+                "0.1.1.1"
+            });
+            test_factory.fill_data({
+                "backspace in to 1.1|.1.1",
+                Click(Qt::Key_Backspace),
+                {"1.1.1.1", 3},
+                {"1..1.1", 2},
+                "1.0.1.1"
+            });
+            test_factory.fill_data({
+                "backspace in to 1.1.1|.1",
+                Click(Qt::Key_Backspace),
+                {"1.1.1.1", 5},
+                {"1.1..1", 4},
+                "1.1.0.1"
             });
             test_factory.fill_data({
                 "backspace in 1.1.1.1|",
