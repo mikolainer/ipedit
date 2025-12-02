@@ -187,8 +187,32 @@ QValidator::State IntIpValidator::validate(QString &text, int &pos) const{
     }
 
     // fix ip if there are octet starts with `0`
-    for (QString& octet : text.split(octet_separator)) // может не работать. TODO: проверить как рабоаете text.split(octet_separator)
-        OctetFixup::fix_start(octet);
+    {
+        QStringList octets = text.split(octet_separator);
+        QStringList octets_copy = octets;
+        QList<int> removed_chars;
+        QList<int> start_chars_cnt;
+        for (QString& octet : octets)
+        {
+            start_chars_cnt.append(octet.length());
+            removed_chars.append(OctetFixup::fix_start(octet));
+        }
+
+        if (octets.length() == norm_octets_count)
+        {
+            text = octets.join(octet_separator);
+
+            int octet_start_pos = 0;
+            for (int i = 0; i < norm_octets_count; ++i)
+            {
+                auto check = text.begin() + pos;
+                if (pos > octet_start_pos)// && octets_copy[i] == "00" && check != text.end() && *check != octet_separator)
+                    pos -= removed_chars[i];
+
+                octet_start_pos += start_chars_cnt[i] - removed_chars[i] +1;
+            }
+        }
+    }
 
     if (result.get() == nullptr && text.count(octet_separator) == 0)
     {
@@ -341,16 +365,16 @@ bool OctetFixup::fix_empty(QString &octet)
     return changed;
 }
 
-bool OctetFixup::fix_start(QString &octet)
+int OctetFixup::fix_start(QString &octet)
 {
-    bool changed = false;
+    int removed_char_count = 0;
     if (IntIpValidator::default_valid_octet == IntIpValidator::invalid_octet_start)
         while (octet != IntIpValidator::default_valid_octet && octet.startsWith(IntIpValidator::invalid_octet_start))
         {
             octet.erase(octet.begin());
-            changed = true;
+            ++removed_char_count;
         }
-    return changed;
+    return removed_char_count;
 }
 
 void TotalFixup::convert_from_int(QString &text)

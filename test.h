@@ -696,14 +696,14 @@ private slots:
 
     void test_make_test_name_insert_ch()
     {
-        const QString expected = "enter . to 12|.12.12.12";
+        const QString expected = "enter `.` to 12|.12.12.12";
         const QString actual = Click('.').make_test_name(state);
         QCOMPARE(actual, expected);
     }
 
     void test_make_test_name_insert_key()
     {
-        const QString expected = "enter 0 to 12|.12.12.12";
+        const QString expected = "enter `0` to 12|.12.12.12";
         const QString actual = Click(Qt::Key_0).make_test_name(state);
         QCOMPARE(actual, expected);
     }

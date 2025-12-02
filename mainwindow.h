@@ -139,7 +139,7 @@ class OctetFixup
 {
 public:
     static bool fix_empty(QString& octet);
-    static bool fix_start(QString& octet);
+    static int fix_start(QString& octet);
 };
 
 class MainWindow : public QWidget
