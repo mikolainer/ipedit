@@ -88,6 +88,19 @@ QValidator::State IntIpValidator::validate(QString &text, int &pos) const{
             // backward
             auto it_b = (it == text.begin()) ? text.end() : it-1;
 
+            if (it_b != text.end())
+            {
+                auto i = it_b;
+                for(; *i == '0'; --i)
+                    if (i == text.begin() || *i != '0') break;
+
+                if (*i != '0' && *i != octet_separator)
+                {
+                    it_f = text.end();
+                    it_b = text.end();
+                }
+            }
+
             while (it_f != text.end() || it_b != text.end())
             {
                 if (*it_b != '0')
@@ -205,8 +218,7 @@ QValidator::State IntIpValidator::validate(QString &text, int &pos) const{
             int octet_start_pos = 0;
             for (int i = 0; i < norm_octets_count; ++i)
             {
-                auto check = text.begin() + pos;
-                if (pos > octet_start_pos)// && octets_copy[i] == "00" && check != text.end() && *check != octet_separator)
+                if (pos > octet_start_pos)
                     pos -= removed_chars[i];
 
                 octet_start_pos += start_chars_cnt[i] - removed_chars[i] +1;
