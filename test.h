@@ -845,7 +845,7 @@ private slots:
         {
             const auto case_factory = Valid(Click(Qt::Key_2));
             test_factory.TestDataFactory::fill_data(case_factory.make(
-                ClickEffect::InputSet::make("|55|.|55.|55.|55")
+                ClickEffect::InputSet::make("|55.|55.|55.|55")
             ));
         }
         {
@@ -1855,13 +1855,14 @@ private slots:
         QFETCH(const Qt::Key, click_key);
         QFETCH(const char, click_char);
 
-/* For debug reason only (to set brakpoint)
+//*
+    //For debug reason only (to set brakpoint)
         if (
             start_value == "1.1.1.1"
             &&
             start_pos == 1
             &&
-            click_key == delete_key
+            click_key == Qt::Key_Space
             &&
             is_key_char == false
         )
@@ -1869,15 +1870,16 @@ private slots:
             int a = 1;
             ++a;
         }
-*/
+//*/
 
         auto ip_edit = std::make_unique<LineEditWithIpValidatorTest>(start_value);
         ip_edit->start_edit(start_pos);
 
-/* For debug reason only
+//*
+    //For debug reason only
         auto text_before = ip_edit->text();
         auto pos_before = ip_edit->cursorPosition();
-*/
+//*/
 
         if (is_key_char)
             ip_edit->click(click_char);
@@ -1885,10 +1887,10 @@ private slots:
             ip_edit->click(click_key);
         ip_edit->check(ip_edit_expected_value, ip_edit_expected_pos);
 
-/* For debug reason only
+//* For debug reason only
         auto text_after = ip_edit->text();
         auto pos_after = ip_edit->cursorPosition();
-*/
+//*/
 
         ip_edit->finish_edit();
         ip_edit->check(ip_edit_finish_expected_value);

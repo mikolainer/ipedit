@@ -28,6 +28,9 @@ public:
             if (m_text.isEmpty())
                 return false;
 
+            if (m_text.contains(QRegularExpression("\\D")))
+                return false;
+
             int value = int_value();
             if (!is_valid(value))
                 return false;
