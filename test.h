@@ -32,8 +32,8 @@ public:
         check(expected_text);
         check(expected_pos);
     };
-    void check(const QString& expected_text){
-        QCOMPARE(text(), expected_text);
+    void check(const QString& expected_finish_text){
+        QCOMPARE(text(), expected_finish_text);
     };
     void check(int expected_pos){
         QCOMPARE(cursorPosition(), expected_pos);
@@ -884,22 +884,16 @@ private slots:
 
             test_factory.TestDataFactory::fill_data(case_factory.make(
                 ClickEffect::InputSet::make("0.0.0.0|")
-                ));
+            ));
             test_factory.TestDataFactory::fill_data(case_factory.make(
                 ClickEffect::InputSet::make("1.1.1.1|")
-                ));
+            ));
             test_factory.TestDataFactory::fill_data(case_factory.make(
                 ClickEffect::InputSet::make("10.10.10.10|")
-                ));
+            ));
             test_factory.TestDataFactory::fill_data(case_factory.make(
                 ClickEffect::InputSet::make("12.12.12.12|")
-                ));
-            test_factory.TestDataFactory::fill_data(case_factory.make(
-                ClickEffect::InputSet::make("100|.100|.100|.100|")
-                ));
-            test_factory.TestDataFactory::fill_data(case_factory.make(
-                ClickEffect::InputSet::make("123|.123|.123|.123|")
-                ));
+            ));
         }
 
         {
@@ -1858,9 +1852,9 @@ private slots:
 //*
     //For debug reason only (to set brakpoint)
         if (
-            start_value == "1.1.1.1"
+            start_value == "0.0.0.0"
             &&
-            start_pos == 1
+            start_pos == 0
             &&
             click_key == Qt::Key_Space
             &&

@@ -281,13 +281,19 @@ void IntIpValidator::fixup(QString &text) const {
 //    if ((separator_count != norm_separators_count) && (separator_count != 0))
 //        text = default_valid_value;
 //
-//    bool fixed = false;
-//    for (QString& octet : text.split(octet_separator)){
-//        if (fixed = OctetFixup::fix_empty(octet)) continue;
-//        if (fixed = OctetFixup::fix_start(octet)) continue;
-//    }
-//    if (fixed) return;
-//
+    int fixes = 0;
+    QStringList octets = text.split(octet_separator);
+    for (QString& octet : octets){
+        const bool empty_was_fixed = OctetFixup::fix_empty(octet);
+        if (empty_was_fixed) {++fixes; continue;}
+        const bool start_was_fixed = OctetFixup::fix_start(octet);
+        if (start_was_fixed) {++fixes; continue;}
+    }
+    if (fixes > 0) {
+        text = octets.join(octet_separator);
+        return;
+    }
+
     if (separator_count == 0)
         TotalFixup::convert_from_int(text);
 //    else
