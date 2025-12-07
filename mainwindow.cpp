@@ -167,27 +167,13 @@ QValidator::State IntIpValidator::validate(QString &text, int &pos) const{
             else if (_inserted_index < text.lastIndexOf(octet_separator))
             {// have separator to move
                 ++it; // inserted separator leaved before
-                int octet_val = 0;
-                bool dot_removed = false;
-                while(it != text.end() && *it != octet_separator)
+                while(it != text.end())
                 {
-                    octet_val = (octet_val * 10) + it->toLatin1() - '0';
-                    if (octet_val > max_octet_value)
-                        break;
-
-                    it++;
-                    if(!dot_removed && *it == octet_separator)
-                    {
-                        it = text.erase(it); // erase moved separator
-                        dot_removed = true;
-                    }
-                }
-                while(it != text.end() && *it != octet_separator)
-                {
+                    auto erased_char = *it;
                     it = text.erase(it);
+                    if (erased_char == octet_separator)
+                        break;
                 }
-                if (!dot_removed && *it == octet_separator && it != text.end())
-                    it = text.erase(it); // erase moved separator
 
                 result.reset(new QValidator::State(Acceptable));
             }
@@ -248,7 +234,6 @@ QValidator::State IntIpValidator::validate(QString &text, int &pos) const{
                 if (ok && octet_val >= 0 && octet_val < 0x100)
                     ++valid_octets_count;
             }
-            // TODO: fix ip if there are octet value overflowed
         }
 
         if (empty_octets_count == norm_octets_count)
@@ -281,9 +266,7 @@ void IntIpValidator::fixup(QString &text) const {
     }
 
     const int separator_count = text.count(octet_separator);
-//    if ((separator_count != norm_separators_count) && (separator_count != 0))
-//        text = default_valid_value;
-//
+
     int fixes = 0;
     QStringList octets = text.split(octet_separator);
     for (QString& octet : octets){
@@ -299,8 +282,6 @@ void IntIpValidator::fixup(QString &text) const {
 
     if (separator_count == 0)
         TotalFixup::convert_from_int(text);
-//    else
-//    {}//TotalFixup::normalize_separators(text);
 }
 
 bool IntIpValidator::is_valid(const QString &text)
