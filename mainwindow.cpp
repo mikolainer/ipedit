@@ -193,8 +193,11 @@ QValidator::State IntIpValidator::validate(QString &text, int &pos) const{
             }
             else
             {// have no separator to move
-                //text.erase(it); // erase moved separator
-               result.reset(new QValidator::State(Invalid));  // reject the input
+               //result.reset(new QValidator::State(Invalid));  // reject the input
+
+                while(it != text.end())
+                    it = text.erase(it);
+                --pos;
             }
         }
     }

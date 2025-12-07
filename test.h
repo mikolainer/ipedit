@@ -29,7 +29,7 @@ public:
     void finish_edit();
 
     void check(const QString& expected_text, int expected_pos) {
-        check(expected_text);
+        QCOMPARE(text(), expected_text);
         check(expected_pos);
     };
     void check(const QString& expected_finish_text){
@@ -1854,7 +1854,7 @@ private slots:
         if (
             start_value == "0.0.0.0"
             &&
-            start_pos == 0
+            start_pos == 6
             &&
             click_key == Qt::Key_Space
             &&
