@@ -304,7 +304,7 @@ bool IntIpValidator::is_valid(const QString &text)
 
 bool IntIpValidator::is_invalid(const QString &text)
 {
-    return text.contains(R"([^., 1234567890])");
+    return text.contains(R"([^ .,/?ю1234567890])");
 }
 
 void IntIpValidator::fix_removed_separator(QString &text, int &pos, bool is_removing_direction_backward) const

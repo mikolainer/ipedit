@@ -134,7 +134,7 @@ public:
     constexpr static const char* default_valid_value{"0.0.0.0"};
 
     constexpr static const char* available_chars {"1234567890"};
-    constexpr static const char* special_chars {"., "};
+    constexpr static const char* special_chars {" .,/?ю"};
 };
 
 
