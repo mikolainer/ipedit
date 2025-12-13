@@ -13,11 +13,16 @@ CONFIG += c++17
 SOURCES += \
     main.cpp \
     mainwindow.cpp \
-    test.cpp
+    oneclick_testfactory.cpp \
+    test_ip_edit.cpp \
+    test_oneclick_testfactory.cpp
 
 HEADERS += \
     mainwindow.h \
-    test.h
+    oneclick_testfactory.h \
+    test_ip_edit.h \
+    test_oneclick_testfactory.h \
+    testrunner.h
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

@@ -7,7 +7,7 @@
 #include <QVBoxLayout>
 #include <QString>
 
-#include "test.h"
+#include "testrunner.h"
 
 class IpV4
 {
