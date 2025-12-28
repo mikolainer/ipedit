@@ -45,8 +45,21 @@ void IntIpValidator::set_to(QLineEdit *editor){
 
 QValidator::State IntIpValidator::validate(QString &text, int &pos) const{
     std::unique_ptr<QValidator::State> result;
-    if (IpV4(text).is_valid())
-        result.reset(new QValidator::State(Acceptable));
+
+    {
+        IpV4 ip{text};
+        if (ip.is_valid())
+            result.reset(new QValidator::State(Acceptable));
+    }
+
+    {
+        IpV4Int ip{text};
+        if (ip.is_valid())
+            result.reset(new QValidator::State(Intermediate));
+
+        else if (ip.is_invalid())
+            result.reset(new QValidator::State(Invalid));
+    }
 
     // fix separator removing (act as if moving the cursor)
     bool is_backward_removing = false;
@@ -132,58 +145,75 @@ QValidator::State IntIpValidator::validate(QString &text, int &pos) const{
          */
         else if (QString(special_chars).contains(inserted_char))
         {
-            *it = octet_separator;
-            if (m_last_text.count(octet_separator) == 0)
-            {// have no separators
-                ++it;
-
-                while (text.count(octet_separator) < norm_separators_count)
-                {
-                    int octet_val = 0;
-                    while (it != text.end())
-                    {
-                        const int growed_octet_val = (octet_val * 10) + (it->toLatin1() - '0');
-                        if (growed_octet_val > max_octet_value) break;
-                        it++;
-                        octet_val = growed_octet_val;
-                    }
-
-                    if (it == text.end())
-                    {
-                        text.append(octet_separator);
-                        it = text.end();
-                    }
-                    else
-                    {
-                        const auto it_index = std::distance(text.begin(), it);
-                        text.insert(it_index, octet_separator);
-                        it = text.begin() + it_index +1;
-                    }
-                }
-
-                result.reset(new QValidator::State(Intermediate));
+            {
+                IpV4Int last_ip{m_last_text};
+                const int max_ip_len_after_first_dot = (IpV4::norm_octets_count -1) * QString::number(IpV4::Octet::max_value).length();
+                if (last_ip.is_valid()
+                    &&
+                    (
+                        m_last_text.length() - _inserted_index > max_ip_len_after_first_dot
+                        ||
+                        _inserted_index > QString::number(IpV4::Octet::max_value).length()
+                    )
+                )
+                    result.reset(new QValidator::State(Invalid));
             }
 
-            else if (_inserted_index < text.lastIndexOf(octet_separator))
-            {// have separator to move
-                ++it; // inserted separator leaved before
-                while(it != text.end())
-                {
-                    auto erased_char = *it;
-                    it = text.erase(it);
-                    if (erased_char == octet_separator)
-                        break;
+            if (result.get() == nullptr)
+            {
+                *it = octet_separator;
+                if (m_last_text.count(octet_separator) == 0)
+                {// have no separators
+                    ++it;
+
+                    while (text.count(octet_separator) < norm_separators_count)
+                    {
+                        int octet_val = 0;
+                        while (it != text.end())
+                        {
+                            const int growed_octet_val = (octet_val * 10) + (it->toLatin1() - '0');
+                            if (growed_octet_val > max_octet_value) break;
+                            it++;
+                            octet_val = growed_octet_val;
+                        }
+
+                        if (it == text.end())
+                        {
+                            text.append(octet_separator);
+                            it = text.end();
+                        }
+                        else
+                        {
+                            const auto it_index = std::distance(text.begin(), it);
+                            text.insert(it_index, octet_separator);
+                            it = text.begin() + it_index +1;
+                        }
+                    }
+
+                    result.reset(new QValidator::State(Intermediate));
                 }
 
-                result.reset(new QValidator::State(Acceptable));
-            }
-            else
-            {// have no separator to move
-               //result.reset(new QValidator::State(Invalid));  // reject the input
+                else if (_inserted_index < text.lastIndexOf(octet_separator))
+                {// have separator to move
+                    ++it; // inserted separator leaved before
+                    while(it != text.end())
+                    {
+                        auto erased_char = *it;
+                        it = text.erase(it);
+                        if (erased_char == octet_separator)
+                            break;
+                    }
 
-                while(it != text.end())
-                    it = text.erase(it);
-                --pos;
+                    result.reset(new QValidator::State(Acceptable));
+                }
+                else
+                {// have no separator to move
+                   //result.reset(new QValidator::State(Invalid));  // reject the input
+
+                    while(it != text.end())
+                        it = text.erase(it);
+                    --pos;
+                }
             }
         }
     }

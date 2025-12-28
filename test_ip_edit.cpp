@@ -770,23 +770,23 @@ void Test_IpEdit::oneClick_data(){
 
         test_factory.TestDataFactory::fill_data(case_factory.make(
             ClickEffect::InputSet::make("123|.123|.123|.123")
-            ));
+        ));
 
         test_factory.TestDataFactory::fill_data(case_factory.make(
-                                                    ClickEffect::InputSet::make("|.|.|.0")
-                                                    ), &zero_ip);
+            ClickEffect::InputSet::make("|.|.|.0")
+        ), &zero_ip);
 
         test_factory.TestDataFactory::fill_data(case_factory.make(
-                                                    ClickEffect::InputSet::make("|.|.0|.")
-                                                    ), &zero_ip);
+            ClickEffect::InputSet::make("|.|.0|.")
+        ), &zero_ip);
 
         test_factory.TestDataFactory::fill_data(case_factory.make(
-                                                    ClickEffect::InputSet::make("|.0|.|.")
-                                                    ), &zero_ip);
+            ClickEffect::InputSet::make("|.0|.|.")
+        ), &zero_ip);
 
         test_factory.TestDataFactory::fill_data(case_factory.make(
-                                                    ClickEffect::InputSet::make("0|.|.|.")
-                                                    ), &zero_ip);
+            ClickEffect::InputSet::make("0|.|.|.")
+        ), &zero_ip);
     }
     {
         const auto case_factory = OnlyPosMove(Click(Qt::Key_Backspace));
@@ -1081,49 +1081,125 @@ void Test_IpEdit::oneClick_data(){
 
     // === remove in int value ===
     {
-        const auto case_factory = Valid(Click(Qt::Key_Delete));
-        test_factory.TestDataFactory::fill_data(case_factory.make(
-            ClickEffect::InputSet::make("|4|2|9|4|9|6|7|2|9|5")
-            ));
+        test_factory.fill_data({
+            "delete in |4294967295",
+            Click(Qt::Key_Delete),
+            {"4294967295", 0},
+            {"294967295", 0},
+            "17.148.215.255"
+        });
+
+        test_factory.fill_data({
+            "delete in 4294|967295",
+            Click(Qt::Key_Delete),
+            {"4294967295", 4},
+            {"429467295", 4},
+            "25.153.38.159"
+        });
+
+        test_factory.fill_data({
+            "delete in 429496729|5",
+            Click(Qt::Key_Delete),
+            {"4294967295", 9},
+            {"429496729", 9},
+            "25.153.153.153"
+        });
     }
     {
-        const auto case_factory = Valid(Click(Qt::Key_Backspace));
-        test_factory.TestDataFactory::fill_data(case_factory.make(
-            ClickEffect::InputSet::make("4|2|9|4|9|6|7|2|9|5|")
-            ));
+        test_factory.fill_data({
+            "backspace in 4|294967295",
+            Click(Qt::Key_Backspace),
+            {"4294967295", 1},
+            {"294967295", 0},
+            "17.148.215.255"
+        });
+
+        test_factory.fill_data({
+            "backspace in 42949|67295",
+            Click(Qt::Key_Backspace),
+            {"4294967295", 5},
+            {"429467295", 4},
+            "25.153.38.159"
+        });
+
+        test_factory.fill_data({
+            "backspace in 4294967295|",
+            Click(Qt::Key_Backspace),
+            {"4294967295", 10},
+            {"429496729", 9},
+            "25.153.153.153"
+        });
     }
 
     // === enter zero to int value ===
     {
-        const auto case_factory = Valid(Click(Qt::Key_0));
-        test_factory.TestDataFactory::fill_data(case_factory.make(
-            ClickEffect::InputSet::make("9|9|")
-            ));
-    }
-    {
-        const auto case_factory = Invalid(Click(Qt::Key_0));
-        test_factory.TestDataFactory::fill_data(case_factory.make(
-            ClickEffect::InputSet::make("|99")
-            ));
-        test_factory.TestDataFactory::fill_data(case_factory.make(
-            ClickEffect::InputSet::make("|1")
-            ));
+        test_factory.fill_data({
+            "enter `0` to |1",
+            Click(Qt::Key_0),
+            {"1", 0},
+            {"1", 0},
+            "0.0.0.1"
+        });
+
+        test_factory.fill_data({
+            "enter `0` to |99",
+            Click(Qt::Key_0),
+            {"99", 0},
+            {"99", 0},
+            "0.0.0.99"
+        });
+
+        test_factory.fill_data({
+            "enter `0` to 9|9",
+            Click(Qt::Key_0),
+            {"99", 1},
+            {"909", 2},
+            "0.0.3.141"
+        });
+
+        test_factory.fill_data({
+            "enter `0` to 99|",
+            Click(Qt::Key_0),
+            {"99", 2},
+            {"990", 3},
+            "0.0.3.222"
+        });
     }
 
     // === enter non zero to int value ===
     {
+        const QString finish_val{"0.0.3.231"};
+
         const auto case_factory = Valid(Click(Qt::Key_9));
         test_factory.TestDataFactory::fill_data(case_factory.make(
-            ClickEffect::InputSet::make("|9|9|")
-            ));
+            ClickEffect::InputSet::make("|9|9|")), &finish_val);
     }
 
     // === enter special char to int value ===
     {
-        const auto case_factory = Valid(Click(Qt::Key_9));
-        test_factory.TestDataFactory::fill_data(case_factory.make(
-            ClickEffect::InputSet::make("|9|9|")
-            ));
+        test_factory.fill_data({
+            "enter `.` to |99",
+            Click('.'),
+            {"99", 0},
+            {".99..", 1},
+            "0.99.0.0"
+        });
+
+        test_factory.fill_data({
+            "enter `.` to 9|9",
+            Click('.'),
+            {"99", 1},
+            {"9.9..", 2},
+            "9.9.0.0"
+        });
+
+        test_factory.fill_data({
+            "enter `.` to 99|",
+            Click('.'),
+            {"99", 2},
+            {"99...", 3},
+            "99.0.0.0"
+        });
     }
     {
         const QString calculated_1111111111 = "66.58.53.199";
@@ -1324,31 +1400,29 @@ void Test_IpEdit::oneClick(){
     QFETCH(const Qt::Key, click_key);
     QFETCH(const char, click_char);
 
-    /*
-    //For debug reason only (to set brakpoint)
+
+    // For debug reason only (to set brakpoint)
         if (
-            start_value == "0.0.0.0"
+            start_value == "1111111111"
             &&
-            start_pos == 6
+            start_pos == 0
             &&
-            click_key == Qt::Key_Space
+            click_char == ' '
             &&
-            is_key_char == false
+            is_key_char == true
         )
         {
             int a = 1;
             ++a;
         }
-*/
+
 
     auto ip_edit = std::make_unique<IpEditTestHelper>(start_value);
     ip_edit->start_edit(start_pos);
 
-    /*
-    //For debug reason only
+    // For debug reason only
         auto text_before = ip_edit->text();
         auto pos_before = ip_edit->cursorPosition();
-*/
 
     if (is_key_char)
         ip_edit->click(click_char);
@@ -1356,10 +1430,9 @@ void Test_IpEdit::oneClick(){
         ip_edit->click(click_key);
     ip_edit->check(ip_edit_expected_value, ip_edit_expected_pos);
 
-    /* For debug reason only
+    // For debug reason only
         auto text_after = ip_edit->text();
         auto pos_after = ip_edit->cursorPosition();
-*/
 
     ip_edit->finish_edit();
     ip_edit->check(ip_edit_finish_expected_value);

@@ -9,6 +9,32 @@
 
 #include "testrunner.h"
 
+class IpV4Int
+{
+public:
+    IpV4Int(const QString& value) : m_text(value) {};
+
+    bool is_valid() const
+    {
+        bool ok = false;
+        const int val = m_text.toInt(&ok);
+        return ok && val <= 0xFFFFFFFF &&
+               val >= 0 && m_text != "" &&
+               (!m_text.startsWith('0') || m_text == "0");
+    }
+
+    bool is_invalid() const
+    {
+        bool ok = false;
+        const int val = m_text.toInt(&ok);
+
+        return ok && (val > 0xFFFFFFFF || (m_text.startsWith('0') && m_text != "0"));
+    }
+
+private:
+    const QString m_text;
+};
+
 class IpV4
 {
 public:
