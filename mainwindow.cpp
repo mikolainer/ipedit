@@ -46,12 +46,17 @@ void IntIpValidator::set_to(QLineEdit *editor){
 QValidator::State IntIpValidator::validate(QString &text, int &pos) const{
     std::unique_ptr<QValidator::State> result;
 
+//    if (text == m_last_text && pos == m_last_pos)
+//        result.reset(new QValidator::State(Acceptable));
+
+    if (result.get() == nullptr)
     {
         IpV4 ip{text};
         if (ip.is_valid())
             result.reset(new QValidator::State(Acceptable));
     }
 
+    if (result.get() == nullptr)
     {
         IpV4Int ip{text};
         if (ip.is_valid())
@@ -245,11 +250,11 @@ QValidator::State IntIpValidator::validate(QString &text, int &pos) const{
         }
     }
 
-    if (result.get() == nullptr && text.count(octet_separator) == 0)
-    {
-        // TODO: fix it if max int value overflowed
-        result.reset(new QValidator::State(Intermediate));
-    }
+//    if (result.get() == nullptr && text.count(octet_separator) == 0)
+//    {
+//        // TODO: fix it if max int value overflowed
+//        result.reset(new QValidator::State(Intermediate));
+//    }
 
     if (result.get() == nullptr && text.count(octet_separator) == norm_separators_count)
     {

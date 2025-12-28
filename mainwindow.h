@@ -17,18 +17,19 @@ public:
     bool is_valid() const
     {
         bool ok = false;
-        const int val = m_text.toInt(&ok);
-        return ok && val <= 0xFFFFFFFF &&
-               val >= 0 && m_text != "" &&
+        const unsigned long val = m_text.toULong(&ok);
+        return ok && val <= 0xFFFFFFFF && !m_text.contains(QRegularExpression("\\D")) &&
+               m_text != "" &&
                (!m_text.startsWith('0') || m_text == "0");
     }
 
     bool is_invalid() const
     {
         bool ok = false;
-        const int val = m_text.toInt(&ok);
+        const unsigned long val = m_text.toULong(&ok);
 
-        return ok && (val > 0xFFFFFFFF || (m_text.startsWith('0') && m_text != "0"));
+        return ok && !m_text.contains(QRegularExpression("\\D")) &&
+               (val > 0xFFFFFFFF || (m_text.startsWith('0') && m_text != "0"));
     }
 
 private:
@@ -74,7 +75,7 @@ public:
         int int_value() const
         {
             bool ok;
-            const int value = m_text.toInt(&ok);
+            const unsigned long value = m_text.toULong(&ok);
             return ok ? value : min_value-1;
         }
 
