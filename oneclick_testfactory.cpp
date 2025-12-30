@@ -36,9 +36,10 @@ void IpEditTestHelper::click(Qt::Key key){
 }
 
 IpEditTestHelper::IpEditTestHelper(const QString &text, QWidget *parent)
-    : QLineEdit(text, parent)
+    : QLineEdit(parent)
 {
     IntIpValidator::set_to(this);
+    setText(text);
 }
 
 ClickEffect::InputSet const ClickEffect::InputSet::make(const QString &format)

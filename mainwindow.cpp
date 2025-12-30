@@ -4,6 +4,8 @@ IntIpValidator::IntIpValidator(QObject *parent) : QValidator(parent) {}
 
 void IntIpValidator::set_to(QLineEdit *editor){
     if (editor){
+        editor->clear();
+
         auto validator = new IntIpValidator(editor);
         editor->setValidator(validator);
 
@@ -15,39 +17,15 @@ void IntIpValidator::set_to(QLineEdit *editor){
             }
         );
 
-        QString text = editor->text();
-        int pos = editor->cursorPosition();
+        const QString text = editor->text();
+        const int pos = editor->cursorPosition();
         validator->update(text, pos);
-
-//        auto t_copy = text;
-//        auto p_copy = pos;
-//        do{
-//            if (validator->validate(text, pos) == Acceptable)
-//            {
-//                validator->update(text, pos);
-//                break;
-//            }
-//            else
-//            {
-//                validator->fixup(text);
-//                const int text_len = text.length();
-//                if (pos > text_len)
-//                    pos = text_len - 1;
-//                t_copy = text;
-//                p_copy = pos;
-//            }
-//        }
-//        while (t_copy != text || p_copy != pos);
-//
-//        editor->setText(text);
     }
 }
 
-QValidator::State IntIpValidator::validate(QString &text, int &pos) const{
+QValidator::State IntIpValidator::validate(QString &text, int &pos) const
+{
     std::unique_ptr<QValidator::State> result;
-
-//    if (text == m_last_text && pos == m_last_pos)
-//        result.reset(new QValidator::State(Acceptable));
 
     if (result.get() == nullptr)
     {
@@ -341,7 +319,7 @@ void IntIpValidator::fixup(QString &text) const {
     }
 
     if (separator_count == 0)
-        TotalFixup::convert_from_int(text);
+        text = IpV4::from_int(text);
 }
 
 bool IntIpValidator::is_valid(const QString &text)
@@ -439,13 +417,17 @@ int OctetFixup::fix_start(QString &octet)
     return removed_char_count;
 }
 
-void TotalFixup::convert_from_int(QString &text)
+QString IpV4::from_int(const QString &int_text, bool* ok)
 {
     QStringList result;
 
-    bool ok;
-    const unsigned long value = text.toULong(&ok);
-    if (!ok) return;
+    bool _ok;
+    const unsigned long value = int_text.toULong(&_ok);
+    if (ok != nullptr)
+        *ok = _ok;
+
+    if (!_ok)
+        return int_text;
 
     for (int i = IntIpValidator::norm_octets_count; i > 0; --i)
     {
@@ -458,51 +440,5 @@ void TotalFixup::convert_from_int(QString &text)
         result.append(QString::number(octet_val));
     }
 
-    text = result.join(IntIpValidator::octet_separator);
-}
-
-void TotalFixup::normalize_separators(QString &text)
-{
-    move_dots(text);
-    strip_end(text);
-}
-
-void TotalFixup::move_dots(QString &text)
-{
-    QList<int> octets;
-    for (const QString& octet_str : text.split(IntIpValidator::octet_separator))
-        octets.append(octet_str.toInt());
-
-    const int last_octet_index = octets.size() -1;
-    int wrong_octet_index = 0;
-    while (wrong_octet_index < last_octet_index)
-        while (octets[wrong_octet_index] > IntIpValidator::max_octet_value)
-        {
-            int next_octet_new_digit = octets[wrong_octet_index] % 10;
-            int& next_octet_value = octets[wrong_octet_index +1];
-            const int next_octet_new_digit_ratio = [next_octet_value]() -> int {
-                int result = 0;
-                int next_octet_copy = next_octet_value;
-                while(next_octet_copy > 0) {
-                    result += (next_octet_copy % 10) > 0 ? 1:0;
-                    next_octet_copy /= 10;
-                }
-                return result;
-            }();
-
-            next_octet_value += next_octet_new_digit * next_octet_new_digit_ratio;
-        }
-
-}
-
-void TotalFixup::strip_end(QString &text)
-{
-    const qsizetype test_size = text.length();
-    const qsizetype last_separator_pos = text.lastIndexOf(IntIpValidator::octet_separator);
-    for (
-        qsizetype octet_size = test_size - last_separator_pos;
-        text.right(octet_size).toInt() > IntIpValidator::max_octet_value;
-        --octet_size
-    )
-        text.erase(text.end() -1);
+    return result.join(IntIpValidator::octet_separator);
 }

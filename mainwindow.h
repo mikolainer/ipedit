@@ -86,6 +86,8 @@ public:
 
 public:
     IpV4(const QString& value) : m_text(value) {};
+    static QString from_int(const QString& int_text, bool* ok = nullptr);
+
     bool is_valid() const
     {
         int separators_count = m_text.count(octet_separator);
@@ -114,17 +116,6 @@ public:
 
     constexpr static const qint64 min_intvalue{0x00000000};
     constexpr static const qint64 max_intvalue{0xFFFFFFFF};
-};
-
-class TotalFixup
-{
-public:
-    static void convert_from_int(QString& text);
-    static void normalize_separators(QString& text);
-
-private:
-    static void move_dots(QString &text);
-    static void strip_end(QString &text);
 };
 
 class IntIpValidator : public QValidator
@@ -179,8 +170,11 @@ public:
         {DirtyTestRunner();}
 
         auto main_lay = new QVBoxLayout(this);
-        auto ip_edit = new QLineEdit("0.0.0.0", this);
+
+        auto ip_edit = new QLineEdit(this);
         IntIpValidator::set_to(ip_edit);
+        ip_edit->setText("0.0.0.0");
+
         main_lay->addWidget(ip_edit);
 
     }
