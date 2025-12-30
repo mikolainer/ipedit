@@ -233,7 +233,7 @@ QValidator::State IntIpValidator::validate(QString &text, int &pos) const
         for (QString& octet : octets)
         {
             start_chars_cnt.append(octet.length());
-            removed_chars.append(OctetFixup::fix_start(octet));
+            removed_chars.append(IpV4::Octet::fix_start(octet));
         }
 
         if (octets.length() == norm_octets_count)
@@ -308,9 +308,9 @@ void IntIpValidator::fixup(QString &text) const {
     int fixes = 0;
     QStringList octets = text.split(octet_separator);
     for (QString& octet : octets){
-        const bool empty_was_fixed = OctetFixup::fix_empty(octet);
+        const bool empty_was_fixed = IpV4::Octet::fix_empty(octet);
         if (empty_was_fixed) {++fixes; continue;}
-        const bool start_was_fixed = OctetFixup::fix_start(octet);
+        const bool start_was_fixed = IpV4::Octet::fix_start(octet);
         if (start_was_fixed) {++fixes; continue;}
     }
     if (fixes > 0) {
@@ -394,7 +394,7 @@ bool IntIpValidator::is_inserted_manually(const QString &text, QChar *inserted_c
     return temp == m_last_text;
 }
 
-bool OctetFixup::fix_empty(QString &octet)
+bool IpV4::Octet::fix_empty(QString &octet)
 {
     bool changed = octet.isEmpty();
     if (octet.isEmpty())
@@ -405,7 +405,7 @@ bool OctetFixup::fix_empty(QString &octet)
     return changed;
 }
 
-int OctetFixup::fix_start(QString &octet)
+int IpV4::Octet::fix_start(QString &octet)
 {
     int removed_char_count = 0;
     if (IntIpValidator::default_valid_octet == IntIpValidator::invalid_octet_start)

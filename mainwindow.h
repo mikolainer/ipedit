@@ -44,6 +44,10 @@ public:
         const QString m_text;
 
     public:
+        static bool fix_empty(QString& octet);
+        static int fix_start(QString& octet);
+
+    public:
         Octet(const QString& value) : m_text(value) {};
         static bool is_valid(int value)
         {
@@ -153,14 +157,6 @@ public:
 
     constexpr static const char* available_chars {"1234567890"};
     constexpr static const char* special_chars {" .,/?ю"};
-};
-
-
-class OctetFixup
-{
-public:
-    static bool fix_empty(QString& octet);
-    static int fix_start(QString& octet);
 };
 
 class MainWindow : public QWidget
