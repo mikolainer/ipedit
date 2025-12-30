@@ -18,7 +18,7 @@ public:
     {
         bool ok = false;
         const unsigned long val = m_text.toULong(&ok);
-        return ok && val <= 0xFFFFFFFF && !m_text.contains(QRegularExpression("\\D")) &&
+        return ok && val <= max_value && !m_text.contains(QRegularExpression("\\D")) &&
                m_text != "" &&
                (!m_text.startsWith('0') || m_text == "0");
     }
@@ -29,11 +29,15 @@ public:
         const unsigned long val = m_text.toULong(&ok);
 
         return ok && !m_text.contains(QRegularExpression("\\D")) &&
-               (val > 0xFFFFFFFF || (m_text.startsWith('0') && m_text != "0"));
+               (val > max_value || (m_text.startsWith('0') && m_text != "0"));
     }
 
 private:
     const QString m_text;
+
+public:
+    constexpr static const qint64 min_value{0x00000000};
+    constexpr static const qint64 max_value{0xFFFFFFFF};
 };
 
 class IpV4
@@ -105,11 +109,6 @@ public:
         return true;
     }
 
-    static bool is_valid(qint64 value)
-    {
-        return value >= min_intvalue && value <= max_intvalue;
-    }
-
 private:
     const QString m_text;
 
@@ -117,9 +116,6 @@ public:
     constexpr static const int norm_separators_count {3};
     constexpr static const int norm_octets_count {norm_separators_count + 1};
     constexpr static const char octet_separator{'.'};
-
-    constexpr static const qint64 min_intvalue{0x00000000};
-    constexpr static const qint64 max_intvalue{0xFFFFFFFF};
 };
 
 class IntIpValidator : public QValidator
