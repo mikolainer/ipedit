@@ -1,5 +1,7 @@
 #include "mainwindow.h"
 
+#include "ipv4int.h"
+
 IntIpValidator::IntIpValidator(QObject *parent) : QValidator(parent) {}
 
 void IntIpValidator::set_to(QLineEdit *editor){
