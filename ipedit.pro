@@ -16,7 +16,6 @@ SOURCES += \
     ipv4int.cpp \
     ipv4octet.cpp \
     main.cpp \
-    mainwindow.cpp \
     oneclick_testfactory.cpp \
     test_ip_edit.cpp \
     test_oneclick_testfactory.cpp

@@ -1,8 +1,6 @@
-
 #include "ipv4.h"
 
 #include <QStringList>
-#include "mainwindow.h"
 
 QString IpV4::from_int(const QString &int_text, bool* ok)
 {
