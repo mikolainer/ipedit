@@ -51,6 +51,12 @@ QValidator::State IntIpValidator::validate(QString &text, int &pos) const{
 
     if (result.get() == nullptr)
     {
+        if (text.isEmpty())
+            result.reset(new QValidator::State(Intermediate));
+    }
+
+    if (result.get() == nullptr)
+    {
         IpV4 ip{text};
         if (ip.is_valid())
             result.reset(new QValidator::State(Acceptable));
@@ -152,13 +158,30 @@ QValidator::State IntIpValidator::validate(QString &text, int &pos) const{
         {
             {
                 IpV4Int last_ip{m_last_text};
+                ulong val_before_first_dot = m_last_text.toULong();
+                uint delim = 1;
+                for (int i = _inserted_index; i > 0; --i)
+                    delim *= 10;
+
+                while (val_before_first_dot / delim > 0)
+                    val_before_first_dot /= 10;
+
                 const int max_ip_len_after_first_dot = (IpV4::norm_octets_count -1) * QString::number(IpV4::Octet::max_value).length();
-                if (last_ip.is_valid()
-                    &&
+                if (
                     (
-                        m_last_text.length() - _inserted_index > max_ip_len_after_first_dot
-                        ||
-                        _inserted_index > QString::number(IpV4::Octet::max_value).length()
+                        last_ip.is_valid()
+                        &&
+                        (
+                            m_last_text.length() - _inserted_index > max_ip_len_after_first_dot
+                            ||
+                            _inserted_index > QString::number(IpV4::Octet::max_value).length()
+                            ||
+                            (
+                                _inserted_index == QString::number(IpV4::Octet::max_value).length()
+                                &&
+                                val_before_first_dot > IpV4::Octet::max_value
+                            )
+                        )
                     )
                 )
                     result.reset(new QValidator::State(Invalid));
@@ -273,7 +296,9 @@ QValidator::State IntIpValidator::validate(QString &text, int &pos) const{
 
         if (empty_octets_count == norm_octets_count)
         {
-            text.clear();
+            if (is_removed_manually)
+                text.clear();
+
             result.reset(new QValidator::State(Intermediate));
         }
 
@@ -419,7 +444,7 @@ void TotalFixup::convert_from_int(QString &text)
     QStringList result;
 
     bool ok;
-    const int value = text.toInt(&ok);
+    const unsigned long value = text.toULong(&ok);
     if (!ok) return;
 
     for (int i = IntIpValidator::norm_octets_count; i > 0; --i)

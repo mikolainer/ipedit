@@ -1370,7 +1370,7 @@ void Test_IpEdit::oneClick_data(){
         Click('.'),
         {"1111111111", 4},
         {"1111111111", 4},
-        "1111111111"
+        "66.58.53.199"
     });
 
     test_factory.fill_data({
@@ -1384,9 +1384,17 @@ void Test_IpEdit::oneClick_data(){
     test_factory.fill_data({
         "enter `.` 789|",
         Click('.'),
-        {"789", 0},
-        {"789", 1},
+        {"789", 3},
+        {"789", 3},
         "0.0.3.21"
+    });
+
+    test_factory.fill_data({
+        "enter `.` 7|89",
+        Click('.'),
+        {"789", 1},
+        {"7.89..", 2},
+        "7.89.0.0"
     });
 }
 
@@ -1403,13 +1411,13 @@ void Test_IpEdit::oneClick(){
 
     // For debug reason only (to set brakpoint)
         if (
-            start_value == "294967295"
+            start_value == ""
             &&
             start_pos == 0
             &&
-            click_key == Qt::Key_4
+            click_char == '.'
             &&
-            is_key_char == false
+            is_key_char == true
         )
         {
             int a = 1;
