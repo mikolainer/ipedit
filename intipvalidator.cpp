@@ -19,18 +19,24 @@ void IntIpValidator::set_to(QLineEdit *editor){
             editor, &QLineEdit::cursorPositionChanged,
             validator, [validator](int old_pos, int new_pos){
                 Q_UNUSED(old_pos)
-                validator->update(validator->m_last_text, new_pos);
+                validator->update(new_pos);
             }
         );
 
-        const QString text = editor->text();
-        const int pos = editor->cursorPosition();
-        validator->update(text, pos);
+        validator->update(*editor);
     }
 }
 
 QValidator::State IntIpValidator::validate(QString &text, int &pos) const
 {
+    const bool is_changed = const_cast<TextChangeTracker&>(m_text).update(text, pos);
+    if(!is_changed)
+    {
+        IpV4 ip{text};
+        if (ip.is_valid() )
+            return ip.is_valid() ? Acceptable : Intermediate;
+    }
+
     std::unique_ptr<QValidator::State> result;
 
     if (result.get() == nullptr)
@@ -85,7 +91,7 @@ QValidator::State IntIpValidator::validate(QString &text, int &pos) const
 
     if (result.get() == nullptr && is_inserted_manually)
     {
-        const int _inserted_index = m_last_pos;
+        const int _inserted_index = m_text.prev_pos();
         auto it = text.begin() + _inserted_index;
 
         if (QString(available_chars).contains(inserted_char))
@@ -141,8 +147,8 @@ QValidator::State IntIpValidator::validate(QString &text, int &pos) const
         else if (QString(special_chars).contains(inserted_char))
         {
             {
-                IpV4Int last_ip{m_last_text};
-                ulong val_before_first_dot = m_last_text.toULong();
+                IpV4Int last_ip{m_text.prev_value()};
+                ulong val_before_first_dot = m_text.prev_value().toULong();
                 uint delim = 1;
                 for (int i = _inserted_index; i > 0; --i)
                     delim *= 10;
@@ -156,7 +162,7 @@ QValidator::State IntIpValidator::validate(QString &text, int &pos) const
                         last_ip.is_valid()
                         &&
                         (
-                            m_last_text.length() - _inserted_index > max_ip_len_after_first_dot
+                            m_text.prev_value().length() - _inserted_index > max_ip_len_after_first_dot
                             ||
                             _inserted_index > QString::number(IpV4::Octet::max_value).length()
                             ||
@@ -174,7 +180,7 @@ QValidator::State IntIpValidator::validate(QString &text, int &pos) const
             if (result.get() == nullptr)
             {
                 *it = IpV4::octet_separator;
-                if (m_last_text.count(IpV4::octet_separator) == 0)
+                if (m_text.prev_value().count(IpV4::octet_separator) == 0)
                 {// have no separators
                     ++it;
 
@@ -269,13 +275,10 @@ QValidator::State IntIpValidator::validate(QString &text, int &pos) const
         int valid_octets_count = 0;
         for (const QString& octet : text.split(IpV4::octet_separator))
         {
-            if (octet.isEmpty()) ++empty_octets_count;
-            else{
-                bool ok = false;
-                const int octet_val = octet.toInt(&ok);
-                if (ok && octet_val >= 0 && octet_val < 0x100)
-                    ++valid_octets_count;
-            }
+            if (octet.isEmpty())
+                ++empty_octets_count;
+            else if (IpV4::Octet(octet).is_valid())
+                ++valid_octets_count;
         }
 
         if (empty_octets_count == IpV4::norm_octets_count)
@@ -296,8 +299,8 @@ QValidator::State IntIpValidator::validate(QString &text, int &pos) const
     if (result.get() == nullptr)
         result.reset(new QValidator::State(Invalid));
 
-    if (*result != Invalid)
-        const_cast<IntIpValidator*>(this)->update(text, pos);
+    if (*result == Invalid)
+        const_cast<TextChangeTracker&>(m_text).revert();
 
     return *result;
 }
@@ -320,28 +323,39 @@ void IntIpValidator::fix_removed_separator(QString &text, int &pos, bool is_remo
 {
     constexpr int forvard_removing_pos_shift {1};
     constexpr int backward_removing_pos_shift {0};
-    text = m_last_text;
-    pos += is_removing_direction_backward ? backward_removing_pos_shift : forvard_removing_pos_shift ;
+    text = m_text.prev_value();
+    pos += is_removing_direction_backward ? backward_removing_pos_shift : forvard_removing_pos_shift;
+
+    const_cast<TextChangeTracker&>(m_text).update(text, pos);
+}
+
+void IntIpValidator::update(const int &pos)
+{
+    m_text.update(pos);
 }
 
 void IntIpValidator::update(const QString &text, const int &pos)
 {
-    m_last_pos = pos;
-    m_last_text = text;
+    m_text.update(text, pos);
+}
+
+void IntIpValidator::update(const QLineEdit &edit)
+{
+    m_text.update(edit);
 }
 
 bool IntIpValidator::is_removed_manually(const QString &text, const int &pos, bool *is_backward_direction, QChar *removed_char) const
 {
     const int _removed_char_index = pos;
-    if (_removed_char_index > m_last_text.length() -1)
+    if (_removed_char_index > m_text.prev_value().length() -1)
         return false;
 
-    const auto _removed_char = m_last_text.at(_removed_char_index);
+    const auto _removed_char = m_text.prev_value().at(_removed_char_index);
     const QString temp = QString(text).insert(pos, _removed_char);
-    if (temp == m_last_text)
+    if (temp == m_text.prev_value())
     {
         if(is_backward_direction)
-            *is_backward_direction = pos != m_last_pos;
+            *is_backward_direction = pos != m_text.prev_pos();
         if(removed_char)
             *removed_char = _removed_char;
         return true;
@@ -352,7 +366,7 @@ bool IntIpValidator::is_removed_manually(const QString &text, const int &pos, bo
 
 bool IntIpValidator::is_inserted_manually(const QString &text, QChar *inserted_char) const
 {
-    const int _inserted_char_index = m_last_pos;
+    const int _inserted_char_index = m_text.prev_pos();
     if (_inserted_char_index > text.length() -1)
         return false;
 
@@ -362,5 +376,5 @@ bool IntIpValidator::is_inserted_manually(const QString &text, QChar *inserted_c
 
     QString temp(text);
     temp.erase(temp.cbegin() + _inserted_char_index);
-    return temp == m_last_text;
+    return temp == m_text.prev_value();
 }
