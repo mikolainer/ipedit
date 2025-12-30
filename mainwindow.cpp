@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 
 #include "ipv4int.h"
+#include "ipv4.h"
 
 IntIpValidator::IntIpValidator(QObject *parent) : QValidator(parent) {}
 
@@ -394,52 +395,4 @@ bool IntIpValidator::is_inserted_manually(const QString &text, QChar *inserted_c
     QString temp(text);
     temp.erase(temp.cbegin() + _inserted_char_index);
     return temp == m_last_text;
-}
-
-bool IpV4::Octet::fix_empty(QString &octet)
-{
-    bool changed = octet.isEmpty();
-    if (octet.isEmpty())
-    {
-        octet = '0';
-        changed = true;
-    }
-    return changed;
-}
-
-int IpV4::Octet::fix_start(QString &octet)
-{
-    int removed_char_count = 0;
-    while (octet != '0' && octet.startsWith('0'))
-    {
-        octet.erase(octet.begin());
-        ++removed_char_count;
-    }
-    return removed_char_count;
-}
-
-QString IpV4::from_int(const QString &int_text, bool* ok)
-{
-    QStringList result;
-
-    bool _ok;
-    const unsigned long value = int_text.toULong(&_ok);
-    if (ok != nullptr)
-        *ok = _ok;
-
-    if (!_ok)
-        return int_text;
-
-    for (int i = IntIpValidator::norm_octets_count; i > 0; --i)
-    {
-        constexpr static const int octet_size = 8;
-        constexpr static const int octet_mask = 0xFF;
-
-        const int octet_index = i - 1;
-        const int octet_shift = octet_index * octet_size;
-        const int octet_val = (value & (octet_mask << octet_shift)) >> octet_shift;
-        result.append(QString::number(octet_val));
-    }
-
-    return result.join(IntIpValidator::octet_separator);
 }

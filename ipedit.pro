@@ -11,7 +11,9 @@ CONFIG += c++17
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    ipv4.cpp \
     ipv4int.cpp \
+    ipv4octet.cpp \
     main.cpp \
     mainwindow.cpp \
     oneclick_testfactory.cpp \
@@ -19,6 +21,7 @@ SOURCES += \
     test_oneclick_testfactory.cpp
 
 HEADERS += \
+    ipv4.h \
     ipv4int.h \
     mainwindow.h \
     oneclick_testfactory.h \
