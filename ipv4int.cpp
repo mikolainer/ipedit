@@ -1,6 +1,29 @@
 #include "ipv4int.h"
 
 #include <QRegularExpression>
+#include "ipv4.h"
+
+QString IpV4Int::to_ipv4() const
+{
+    QStringList result;
+
+    bool ok;
+    const unsigned long value = m_text.toULong(&ok);
+    if (!ok) return m_text;
+
+    for (int i = IpV4::norm_octets_count; i > 0; --i)
+    {
+        constexpr static const int octet_size = 8;
+        constexpr static const int octet_mask = 0xFF;
+
+        const int octet_index = i - 1;
+        const int octet_shift = octet_index * octet_size;
+        const int octet_val = (value & (octet_mask << octet_shift)) >> octet_shift;
+        result.append(QString::number(octet_val));
+    }
+
+    return result.join(IpV4::octet_separator);
+}
 
 IpV4Int::IpV4Int(const QString &value) : m_text(value) {}
 

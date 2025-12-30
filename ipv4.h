@@ -30,7 +30,7 @@ public:
 
 
 public:
-    static QString from_int(const QString& int_text, bool* ok = nullptr);
+    static QString fix(const QString& ip_text);
 
 public:
     IpV4(const QString& value) : m_text(value) {};

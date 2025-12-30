@@ -309,23 +309,11 @@ void IntIpValidator::fixup(QString &text) const {
         return;
     }
 
-    const int separator_count = text.count(IpV4::octet_separator);
-
-    int fixes = 0;
-    QStringList octets = text.split(IpV4::octet_separator);
-    for (QString& octet : octets){
-        const bool empty_was_fixed = IpV4::Octet::fix_empty(octet);
-        if (empty_was_fixed) {++fixes; continue;}
-        const bool start_was_fixed = IpV4::Octet::fix_start(octet);
-        if (start_was_fixed) {++fixes; continue;}
-    }
-    if (fixes > 0) {
-        text = octets.join(IpV4::octet_separator);
-        return;
-    }
-
-    if (separator_count == 0)
-        text = IpV4::from_int(text);
+    const IpV4Int int_ip = {text};
+    if (int_ip.is_valid())
+        text = int_ip.to_ipv4();
+    else
+        text = IpV4::fix(text);
 }
 
 void IntIpValidator::fix_removed_separator(QString &text, int &pos, bool is_removing_direction_backward) const

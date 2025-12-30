@@ -6,7 +6,8 @@
 class IpV4Int
 {
 public:
-    IpV4Int(const QString& value);;
+    IpV4Int(const QString& value);
+    QString to_ipv4() const;
     
     bool is_valid() const;
     bool is_invalid() const;
