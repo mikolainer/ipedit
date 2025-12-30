@@ -399,7 +399,7 @@ bool IpV4::Octet::fix_empty(QString &octet)
     bool changed = octet.isEmpty();
     if (octet.isEmpty())
     {
-        octet = IntIpValidator::default_valid_octet;
+        octet = '0';
         changed = true;
     }
     return changed;
@@ -408,12 +408,11 @@ bool IpV4::Octet::fix_empty(QString &octet)
 int IpV4::Octet::fix_start(QString &octet)
 {
     int removed_char_count = 0;
-    if (IntIpValidator::default_valid_octet == IntIpValidator::invalid_octet_start)
-        while (octet != IntIpValidator::default_valid_octet && octet.startsWith(IntIpValidator::invalid_octet_start))
-        {
-            octet.erase(octet.begin());
-            ++removed_char_count;
-        }
+    while (octet != '0' && octet.startsWith('0'))
+    {
+        octet.erase(octet.begin());
+        ++removed_char_count;
+    }
     return removed_char_count;
 }
 

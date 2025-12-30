@@ -143,17 +143,14 @@ private:
     bool is_inserted_manually(const QString &text, QChar* inserted_char = nullptr) const;
 
 private:
-    int m_last_pos = 0;
-    QString m_last_text = default_valid_value;
+    int m_last_pos;
+    QString m_last_text;
 
 public:
     constexpr static const int max_octet_value {255};
     constexpr static const int norm_separators_count {3};
     constexpr static const int norm_octets_count {norm_separators_count + 1};
     constexpr static const char octet_separator{'.'};
-    constexpr static const char invalid_octet_start{'0'};
-    constexpr static const char default_valid_octet{'0'};
-    constexpr static const char* default_valid_value{"0.0.0.0"};
 
     constexpr static const char* available_chars {"1234567890"};
     constexpr static const char* special_chars {" .,/?ю"};
