@@ -16,7 +16,7 @@ QString IpV4::from_int(const QString &int_text, bool* ok)
     if (!_ok)
         return int_text;
     
-    for (int i = IntIpValidator::norm_octets_count; i > 0; --i)
+    for (int i = norm_octets_count; i > 0; --i)
     {
         constexpr static const int octet_size = 8;
         constexpr static const int octet_mask = 0xFF;
@@ -27,7 +27,7 @@ QString IpV4::from_int(const QString &int_text, bool* ok)
         result.append(QString::number(octet_val));
     }
     
-    return result.join(IntIpValidator::octet_separator);
+    return result.join(octet_separator);
 }
 
 bool IpV4::is_valid() const
