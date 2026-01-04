@@ -6,12 +6,73 @@
 
 //class QLineEdit;
 
-class TextChangeTracker
+#include "ipv4int.h"
+#include "ipv4.h"
+
+struct TextEditState{
+    QString val;
+    int pos;
+};
+
+struct ManualDiff{
+    enum RemoveDirection{
+        Forward, // by Delete
+        Backward // by Backspace
+    };
+
+    bool inserted = false;
+    bool removed = true;
+    RemoveDirection remove_dir = Forward;
+    QChar ch = QChar::Null;
+    int index = -1;
+
+    ManualDiff(const TextEditState& prev, const TextEditState& cur){
+        {
+            const int removed_char_index = cur.pos;
+            if (removed_char_index <= prev.val.length() -1)
+            {
+                const auto _removed_char = prev.val.at(removed_char_index);
+                QString temp = QString(cur.val);
+                temp.insert(cur.pos, _removed_char);
+                if (temp == prev.val)
+                {
+                    removed = true;
+                    remove_dir = cur.pos != prev.pos ? Backward : Forward;
+                    ch = _removed_char;
+                }
+            }
+        }
+
+        {
+            const int inserted_char_index = prev.pos;
+            if (inserted_char_index <= cur.val.length() -1)
+            {
+                const auto _inserted_char = cur.val.at(inserted_char_index);
+                QString temp(cur.val);
+                temp.erase(temp.cbegin() + inserted_char_index);
+                if (temp == prev.val)
+                {
+                    inserted = true;
+                    ch = _inserted_char;
+                }
+            }
+        }
+    }
+
+    bool is_valid()
+    {
+        return index > 0;
+    }
+};
+
+class TextChangeHistory
 {
 public:
-    TextChangeTracker(const QString &text = QString(), const int &pos = 0)
+    TextChangeHistory(const QString &text = QString(), const int &pos = 0)
         :m_val({text}), m_pos({pos})
     {}
+
+    void fix_removed_separator(TextEditState& result, const ManualDiff& diff) const;
 
     bool update(const int &pos){
         update_text(cur_value());
@@ -96,6 +157,37 @@ private:
     constexpr static const int history_size {3};
 };
 
+class IpChangeAnalyzer
+{
+public:
+    IpChangeAnalyzer(TextChangeHistory& history)
+        : m_history(history)
+    {}
+
+    bool update_history(const TextEditState& cur)
+    {
+        const TextEditState prev{
+            m_history.cur_value(),
+            m_history.cur_pos()
+        };
+
+        return commit(prepare_new_state(prev, cur));
+    }
+
+    TextEditState prepare_new_state(const TextEditState& prev, const TextEditState& cur);
+
+    bool commit(const TextEditState& cur) const{
+        return m_history.update(cur.val, cur.pos);
+    }
+
+private:
+    TextChangeHistory& m_history;
+
+public:
+    constexpr static const char* digit_chars {"1234567890"};
+    constexpr static const char* special_chars {" .,/?ю"};
+};
+
 class IntIpValidator : public QValidator
 { Q_OBJECT
 
@@ -109,7 +201,6 @@ public:
     virtual void fixup(QString &text) const override;
 
 private:
-    void fix_removed_separator(QString &text, int &pos, bool is_removing_direction_backward) const;
     void update(const int &pos);
     void update(const QString &text, const int &pos);
     void update(const QLineEdit& edit);
@@ -117,11 +208,7 @@ private:
     bool is_inserted_manually(const QString &text, QChar* inserted_char = nullptr) const;
 
 private:
-    TextChangeTracker m_text;
-
-public:
-    constexpr static const char* available_chars {"1234567890"};
-    constexpr static const char* special_chars {" .,/?ю"};
+    TextChangeHistory m_text;
 };
 
 #endif // INTIPVALIDATOR_H
