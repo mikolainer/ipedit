@@ -21,7 +21,7 @@ struct ManualDiff{
     };
 
     bool inserted = false;
-    bool removed = true;
+    bool removed = false;
     RemoveDirection remove_dir = Forward;
     QChar ch = QChar::Null;
     int index = -1;
@@ -37,6 +37,7 @@ struct ManualDiff{
                 if (temp == prev.val)
                 {
                     removed = true;
+                    index = removed_char_index;
                     remove_dir = cur.pos != prev.pos ? Backward : Forward;
                     ch = _removed_char;
                 }
@@ -47,13 +48,14 @@ struct ManualDiff{
             const int inserted_char_index = prev.pos;
             if (inserted_char_index <= cur.val.length() -1)
             {
-                const auto _inserted_char = cur.val.at(inserted_char_index);
+                const auto inserted_char = cur.val.at(inserted_char_index);
                 QString temp(cur.val);
                 temp.erase(temp.cbegin() + inserted_char_index);
                 if (temp == prev.val)
                 {
                     inserted = true;
-                    ch = _inserted_char;
+                    index = inserted_char_index;
+                    ch = inserted_char;
                 }
             }
         }

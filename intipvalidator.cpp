@@ -31,6 +31,8 @@ QValidator::State IntIpValidator::validate(QString &text, int &pos) const
 {
     try{
         IpChangeAnalyzer(const_cast<TextChangeHistory&>(m_text)).update_history({text, pos});
+        text = m_text.cur_value();
+        pos = m_text.cur_pos();
 
         IpV4 ip{text};
         return ip.is_valid() ? Acceptable : Intermediate;
@@ -152,7 +154,7 @@ TextEditState IpChangeAnalyzer::prepare_new_state(const TextEditState &prev, con
     if (is_manual.inserted)
     {
         const auto inserted_char = is_manual.ch;
-        const int _inserted_index = m_history.prev_pos();
+        const int _inserted_index = is_manual.index;
         auto it = result.val.begin() + _inserted_index;
 
         if (QString(digit_chars).contains(inserted_char))
