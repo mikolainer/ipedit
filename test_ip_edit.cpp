@@ -1413,7 +1413,7 @@ void Test_IpEdit::oneClick(){
         if (
             start_value == "0.0.0.0"
             &&
-            start_pos == 6
+            start_pos == 0
             &&
             click_key == Qt::Key_0
             &&

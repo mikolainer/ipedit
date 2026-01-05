@@ -9,12 +9,79 @@
 #include "ipv4int.h"
 #include "ipv4.h"
 
+class ManualDiff;
+
 struct TextEditState{
     QString val;
     int pos;
+
+    void fixup_wrong_separators()
+    {
+        for (const auto spec_ch : QString(IpV4::wrong_octet_separators))
+            val.replace(spec_ch, IpV4::octet_separator);
+    }
+
+    void fixup_insignificant_zeros()
+    {
+        QStringList octets = val.split(IpV4::octet_separator);
+        QStringList octets_copy = octets;
+        QList<int> removed_chars;
+        QList<int> start_chars_cnt;
+        for (QString& octet : octets)
+        {
+            start_chars_cnt.append(octet.length());
+            removed_chars.append(IpV4::Octet::fix_start(octet));
+        }
+
+        if (octets.length() == IpV4::norm_octets_count)
+        {
+            val = octets.join(IpV4::octet_separator);
+
+            int octet_start_pos = 0;
+            for (int i = 0; i < IpV4::norm_octets_count; ++i)
+            {
+                if (pos > octet_start_pos)
+                    pos -= removed_chars[i];
+
+                octet_start_pos += start_chars_cnt[i] - removed_chars[i] +1;
+            }
+        }
+    }
+
+    void fixup_manual_changes(const TextEditState &prev);
+
+    bool have_invalid_chars() const
+    {
+        const QString text = val;
+
+        int available_char_count = text.count(IpV4::octet_separator);
+        for (const auto digit : QString(IpV4::Octet::availavle_chars))
+            available_char_count += text.count(digit);
+
+        return available_char_count < text.length();
+    }
+
+    bool is_valid() const
+    {
+        const QString text = val;
+        return IpV4(text).is_valid() || IpV4Int(text).is_valid();
+    }
+
+    bool is_prevalid() const
+    {
+        const QString text = val;
+        return IpV4(text).is_prevalid();
+    }
+
+    bool is_invalid() const
+    {
+        const QString text = val;
+        return IpV4Int(text).is_invalid();
+    }
 };
 
-struct ManualDiff{
+class ManualDiff{
+public:
     enum RemoveDirection{
         Forward, // by Delete
         Backward // by Backspace
@@ -26,7 +93,14 @@ struct ManualDiff{
     QChar ch = QChar::Null;
     int index = -1;
 
-    ManualDiff(const TextEditState& prev, const TextEditState& cur){
+private:
+    const TextEditState m_prev;
+    const TextEditState m_cur;
+
+public:
+    ManualDiff(const TextEditState& prev, const TextEditState& cur)
+        : m_prev(prev), m_cur(cur)
+    {
         {
             const int removed_char_index = cur.pos;
             if (removed_char_index <= prev.val.length() -1)
@@ -61,7 +135,14 @@ struct ManualDiff{
         }
     }
 
-    bool is_valid()
+    TextEditState fixup_removed_separator() const;
+    TextEditState fixup_inserted_separator() const;
+    TextEditState fixup_inserted_digit() const;
+    TextEditState fixup_empty_field() const;
+
+    bool is_insert_insignificant_zero() const;
+
+    bool valid() const
     {
         return index > 0;
     }
@@ -73,8 +154,6 @@ public:
     TextChangeHistory(const QString &text = QString(), const int &pos = 0)
         :m_val({text}), m_pos({pos})
     {}
-
-    void fix_removed_separator(TextEditState& result, const ManualDiff& diff) const;
 
     bool update(const int &pos){
         update_text(cur_value());
@@ -184,10 +263,6 @@ public:
 
 private:
     TextChangeHistory& m_history;
-
-public:
-    constexpr static const char* digit_chars {"1234567890"};
-    constexpr static const char* special_chars {" .,/?ю"};
 };
 
 class IntIpValidator : public QValidator

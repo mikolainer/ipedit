@@ -27,3 +27,16 @@ bool IpV4::is_valid() const
 
     return true;
 }
+
+bool IpV4::is_prevalid() const
+{
+    int separators_count = m_text.count(octet_separator);
+    if (separators_count != norm_separators_count)
+        return false;
+
+    for (const QString& octet : m_text.split(octet_separator))
+        if (!Octet(octet).is_prevalid())
+            return false;
+
+    return true;
+}

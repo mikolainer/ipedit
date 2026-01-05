@@ -50,6 +50,21 @@ bool IpV4::Octet::is_valid() const
     return true;
 }
 
+bool IpV4::Octet::is_prevalid() const
+{
+    if (m_text.contains(QRegularExpression("\\D")))
+        return false;
+
+    int value = int_value();
+    if (!is_valid(value))
+        return false;
+
+    if (value > 0 && m_text.startsWith("0"))
+        return false;
+
+    return true;
+}
+
 int IpV4::Octet::int_value() const
 {
     bool ok;
