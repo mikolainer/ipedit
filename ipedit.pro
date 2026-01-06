@@ -16,19 +16,25 @@ SOURCES += \
     ipv4int.cpp \
     ipv4octet.cpp \
     main.cpp \
+    manualdiff.cpp \
     oneclick_testfactory.cpp \
     test_ip_edit.cpp \
-    test_oneclick_testfactory.cpp
+    test_oneclick_testfactory.cpp \
+    textchangehistory.cpp \
+    texteditstate.cpp
 
 HEADERS += \
     intipvalidator.h \
     ipv4.h \
     ipv4int.h \
     mainwindow.h \
+    manualdiff.h \
     oneclick_testfactory.h \
     test_ip_edit.h \
     test_oneclick_testfactory.h \
-    testrunner.h
+    testrunner.h \
+    textchangehistory.h \
+    texteditstate.h
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

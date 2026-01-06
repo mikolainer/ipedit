@@ -1413,9 +1413,9 @@ void Test_IpEdit::oneClick(){
         if (
             start_value == "0.0.0.0"
             &&
-            start_pos == 0
+            start_pos == 1
             &&
-            click_key == Qt::Key_0
+            click_key == Qt::Key_Space
             &&
             is_key_char == false
         )
