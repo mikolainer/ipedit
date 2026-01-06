@@ -14,20 +14,14 @@ bool TextChangeHistory::update(const int &pos){
 }
 
 bool TextChangeHistory::update(const QString &text, const int &pos){
-    try{
-        if (prev_value() == text && prev_pos() == pos)
-            return false;
-
-        update_text(text);
-        update_pos(pos);
-
-        checkup();
-        return true;
-    }
-    catch(...)// prev state not found
-    {
+    if (cur_value() == text && cur_pos() == pos)
         return false;
-    }
+
+    update_text(text);
+    update_pos(pos);
+
+    checkup();
+    return true;
 }
 
 bool TextChangeHistory::update(const QLineEdit &edit){
