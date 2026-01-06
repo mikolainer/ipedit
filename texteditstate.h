@@ -15,6 +15,10 @@ public:
     bool is_valid() const;
     bool is_prevalid() const;
     bool is_invalid() const;
+
+private:
+    QList<int> remove_insignificant_zeros();
+    void shift_removed_pos(const QList<int>& removed_indexes);
 };
 
 #endif // TEXTEDITSTATE_H

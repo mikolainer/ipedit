@@ -1411,11 +1411,11 @@ void Test_IpEdit::oneClick(){
 
     // For debug reason only (to set brakpoint)
         if (
-            start_value == "0.0.0.0"
+            start_value == "1.1.1.1"
             &&
-            start_pos == 1
+            start_pos == 0
             &&
-            click_key == Qt::Key_Space
+            click_key == Qt::Key_0
             &&
             is_key_char == false
         )

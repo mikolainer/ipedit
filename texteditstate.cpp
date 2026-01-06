@@ -15,28 +15,11 @@ void TextEditState::fixup_wrong_separators()
 void TextEditState::fixup_insignificant_zeros()
 {
     QStringList octets = val.split(IpV4::octet_separator);
-    QStringList octets_copy = octets;
-    QList<int> removed_chars;
-    QList<int> start_chars_cnt;
-    for (QString& octet : octets)
-    {
-        start_chars_cnt.append(octet.length());
-        removed_chars.append(IpV4::Octet::fix_start(octet));
-    }
+    if (octets.length() != IpV4::norm_octets_count)
+        return;
 
-    if (octets.length() == IpV4::norm_octets_count)
-    {
-        val = octets.join(IpV4::octet_separator);
-
-        int octet_start_pos = 0;
-        for (int i = 0; i < IpV4::norm_octets_count; ++i)
-        {
-            if (pos > octet_start_pos)
-                pos -= removed_chars[i];
-
-            octet_start_pos += start_chars_cnt[i] - removed_chars[i] +1;
-        }
-    }
+    const auto removed_indexes = remove_insignificant_zeros();
+    shift_removed_pos(removed_indexes);
 }
 
 void TextEditState::fixup_manual_changes(const TextEditState &prev)
@@ -77,4 +60,55 @@ bool TextEditState::is_invalid() const
 {
     const QString text = val;
     return IpV4Int(text).is_invalid();
+}
+
+QList<int> TextEditState::remove_insignificant_zeros()
+{
+    QList<int> removed_indexes;
+
+    auto octets = val.split(IpV4::octet_separator);
+    const QList<int> octet_removed_chars_cnt = [&octets](){
+        QList<int> temp;
+        for (QString& octet : octets)
+            temp.append(IpV4::Octet::fix_start(octet));
+        return temp;
+    }();
+
+    int octet_index = 0;
+    QString::const_iterator it = val.cbegin();
+    const QString::const_iterator the_end = val.cend();
+    while (it != the_end)
+    {
+        if (*it == IpV4::octet_separator)
+        {
+            ++it;
+            ++octet_index;
+            continue;
+        }
+
+        int it_index_in_octet = 0;
+        while(it != the_end && *it != IpV4::octet_separator)
+        {
+            if (it_index_in_octet < octet_removed_chars_cnt[octet_index])
+                removed_indexes.append(std::distance(val.cbegin(), it));
+
+            ++it;
+        }
+    }
+
+    val = octets.join(IpV4::octet_separator);
+    return removed_indexes;
+}
+
+void TextEditState::shift_removed_pos(const QList<int> &removed_indexes)
+{
+    int shifted_count = 0;
+    for (const int removed_char_index : removed_indexes)
+    {
+        if (pos + shifted_count <= removed_char_index)
+            continue;
+
+        ++shifted_count;
+        --pos;
+    }
 }
