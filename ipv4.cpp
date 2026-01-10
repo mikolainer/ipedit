@@ -12,7 +12,8 @@ QString IpV4::fix(const QString &ip_text)
         const bool start_was_fixed = IpV4::Octet::fix_start(octet);
         if (start_was_fixed) {++fixes; continue;}
     }
-    return fixes > 0 ? octets.join(IpV4::octet_separator) : ip_text;
+    //return fixes > 0 ? octets.join(IpV4::octet_separator) : ip_text;
+    return octets.join(IpV4::octet_separator);
 }
 
 bool IpV4::is_valid() const

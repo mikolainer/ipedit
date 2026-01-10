@@ -52,6 +52,9 @@ bool IpV4::Octet::is_valid() const
 
 bool IpV4::Octet::is_prevalid() const
 {
+    if (m_text.isEmpty())
+        return true;
+
     if (m_text.contains(QRegularExpression("\\D")))
         return false;
 

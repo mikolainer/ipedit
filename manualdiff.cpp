@@ -231,7 +231,7 @@ TextEditState ManualDiff::fixup_removed_separator() const
     if (removed && ch == IpV4::octet_separator)
     {
         result.val = m_prev.val;
-        result.pos += remove_dir == Backward ? 1 : 0;
+        result.pos += remove_dir == Backward ? 0 : 1;
     }
     return result;
 }
