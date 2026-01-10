@@ -92,6 +92,7 @@ QList<int> TextEditState::remove_insignificant_zeros()
             if (it_index_in_octet < octet_removed_chars_cnt[octet_index])
                 removed_indexes.append(std::distance(val.cbegin(), it));
 
+            ++it_index_in_octet;
             ++it;
         }
     }

@@ -180,7 +180,7 @@ bool ManualDiff::is_insert_insignificant_zero() const
 
 bool ManualDiff::valid() const
 {
-    return index > 0;
+    return index >= 0;
 }
 
 void ManualDiff::init_removed()
