@@ -53,7 +53,7 @@ bool TextEditState::is_valid() const
 bool TextEditState::is_prevalid() const
 {
     const QString text = val;
-    return IpV4(text).is_prevalid();
+    return text.isEmpty() || IpV4(text).is_prevalid();
 }
 
 bool TextEditState::is_invalid() const
