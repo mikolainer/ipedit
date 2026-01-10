@@ -118,8 +118,8 @@ TextEditState ManualDiff::fixup_inserted_digit() const
     if (it_b != result.val.end())
     {
         auto i = it_b;
-        for(; *i == '0'; --i)
-            if (i == result.val.begin() || *i != '0') break;
+        while (i != result.val.begin() && *i == '0')
+            --i;
         
         if (*i != '0' && *i != IpV4::octet_separator)
         {
