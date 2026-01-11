@@ -101,16 +101,14 @@ TextEditState ManualDiff::fixup_inserted_separator() const
 TextEditState ManualDiff::fixup_inserted_digit() const
 {
     TextEditState result = m_cur;
-    const auto inserted_char = ch;
-    const int inserted_index = index;
     
-    if (!inserted || inserted_char == IpV4::octet_separator)
+    if (!inserted || ch == IpV4::octet_separator)
         return result;
     
-    auto it = result.val.begin() + inserted_index;
+    auto it = result.val.begin() + index;
     
     // forward
-    auto it_f = inserted_char == '0' ? it+1 : result.val.end();
+    auto it_f = ch == '0' ? it+1 : result.val.end();
     
     // backward
     auto it_b = (it == result.val.begin()) ? result.val.end() : it-1;
