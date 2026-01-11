@@ -2,17 +2,11 @@
 #define INTIPVALIDATOR_H
 
 #include <QValidator>
-#include <QLineEdit>
 
-//class QLineEdit;
-
-#include "ipv4int.h"
-#include "ipv4.h"
-#include "manualdiff.h"
 #include "textchangehistory.h"
 #include "texteditstate.h"
 
-
+class QLineEdit;
 
 class IpChangeAnalyzer
 {

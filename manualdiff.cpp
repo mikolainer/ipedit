@@ -98,6 +98,9 @@ TextEditState ManualDiff::fixup_inserted_separator() const
     return result;
 }
 
+/* move the cursor (0.|0.0.0 -> 0.0|.0.0)
+ * instead inserting invalid zero (0.|0.0.0 -> 0.0|0.0.0)
+ */
 TextEditState ManualDiff::fixup_inserted_zero() const
 {
     TextEditState result = m_cur;
@@ -112,18 +115,21 @@ TextEditState ManualDiff::fixup_inserted_zero() const
     const auto it_next = it+1;
     const auto it_next2 = it+2;
 
-    if (
+    if (    // is the first digit inserted to the octet
         (it == result_val_beg || *(it-1) == IpV4::octet_separator)
-        &&
+        &&  // and next digit is zero too
         (it_next != result_val_end && *it_next == '0')
-        &&
+        &&  // and next digit is last digit in the octet
         (it_next2 == result_val_end || *it_next2 == IpV4::octet_separator)
     )
+
         result.val.erase(it);
+
     
     return result;
 }
 
+// clear the text when last digit removed
 TextEditState ManualDiff::fixup_empty_field() const
 {
     TextEditState result = m_cur;
@@ -132,21 +138,6 @@ TextEditState ManualDiff::fixup_empty_field() const
         result.val.clear();
     
     return result;
-}
-
-bool ManualDiff::is_insert_insignificant_zero() const
-{
-    const auto zero_char = '0';
-    
-    if (!inserted || ch != zero_char)
-        return false;
-    
-    int zeros_count = 1;
-    auto it = m_cur.val.begin() + index +1;
-    while (it != m_cur.val.end() && *it != zero_char)
-        ++zeros_count;
-    
-    return zeros_count >0;
 }
 
 bool ManualDiff::valid() const

@@ -26,10 +26,15 @@ public:
     
     TextEditState fixup_removed_separator() const;
     TextEditState fixup_inserted_separator() const;
+
+    /* move the cursor (0.|0.0.0 -> 0.0|.0.0)
+     * instead inserting invalid zero (0.|0.0.0 -> 0.0|0.0.0)
+     */
     TextEditState fixup_inserted_zero() const;
+
+    // clear the text when last digit removed
     TextEditState fixup_empty_field() const;
     
-    bool is_insert_insignificant_zero() const;
     bool valid() const;
 
 private:
