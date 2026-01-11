@@ -105,41 +105,21 @@ TextEditState ManualDiff::fixup_inserted_zero() const
     if (!inserted || ch != '0')
         return result;
     
-    auto it = result.val.begin() + index;
-    auto it_forward = it+1;
-    auto it_backward = (it == result.val.begin()) ? result.val.end() : it-1;
-    
-    if (it_backward != result.val.end())
-    {
-        auto i = it_backward;
-        while (i != result.val.begin() && *i == '0')
-            --i;
-        
-        if (*i != '0' && *i != IpV4::octet_separator)
-            return result;
-    }
-    
-    while (it_forward != result.val.end() || it_backward != result.val.end())
-    {
-        if (*it_backward != '0')
-            it_backward = result.val.end();
-        
-        if (*it_forward != '0')
-            it_forward = result.val.end();
-        
-        if (it_forward != result.val.end())
-        {
-            result.pos++;
-            it_forward = result.val.erase(it_forward);
-        }
-        
-        if (it_backward != result.val.end())
-        {
-            result.pos--;
-            it_backward = result.val.erase(it_backward);
-            it_backward = (it_backward == result.val.begin()) ? result.val.end() : it_backward-1;
-        }
-    }
+    const auto result_val_beg = result.val.begin();
+    const auto result_val_end = result.val.end();
+
+    const auto it = result_val_beg + index;
+    const auto it_next = it+1;
+    const auto it_next2 = it+2;
+
+    if (
+        (it == result_val_beg || *(it-1) == IpV4::octet_separator)
+        &&
+        (it_next != result_val_end && *it_next == '0')
+        &&
+        (it_next2 == result_val_end || *it_next2 == IpV4::octet_separator)
+    )
+        result.val.erase(it);
     
     return result;
 }
