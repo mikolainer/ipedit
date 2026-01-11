@@ -14,33 +14,29 @@ TextEditState ManualDiff::fixup_inserted_separator() const
     auto it = result.val.begin() + inserted_index;
     
     {
-        IpV4Int last_ip{m_prev.val};
-        ulong val_before_first_dot = m_prev.val.toULong();
-        uint delim = 1;
-        for (int i = inserted_index; i > 0; --i)
-            delim *= 10;
+        const int octet_max_value_len = QString::number(IpV4::Octet::max_value).length();
+        IpV4Int prev_ip{m_prev.val};
+        const QString prev_before_first_dot = m_prev.val.left(inserted_index);
+        ulong prev_before_first_dot_value = prev_before_first_dot.toULong();
         
-        while (val_before_first_dot / delim > 0)
-            val_before_first_dot /= 10;
-        
-        const int max_ip_len_after_first_dot = (IpV4::norm_octets_count -1) * QString::number(IpV4::Octet::max_value).length();
+        const int max_ip_len_after_first_dot = (IpV4::norm_octets_count -1) * octet_max_value_len;
         if (
             (
-                last_ip.is_valid()
+                prev_ip.is_valid()
                 &&
                 (
                     m_prev.val.length() - inserted_index > max_ip_len_after_first_dot
                     ||
-                    inserted_index > QString::number(IpV4::Octet::max_value).length()
+                    inserted_index > octet_max_value_len
                     ||
                     (
-                        inserted_index == QString::number(IpV4::Octet::max_value).length()
+                        inserted_index == octet_max_value_len
                         &&
-                        val_before_first_dot > IpV4::Octet::max_value
-                        )
+                        prev_before_first_dot_value > IpV4::Octet::max_value
                     )
                 )
             )
+        )
             throw std::runtime_error("can't fixup the input");
     }
     
@@ -180,18 +176,16 @@ TextEditState ManualDiff::fixup_separators_count() const
 {
     TextEditState result = m_cur;
 
-    if (!removed)
-    {// is not removed
+    if (inserted)
         return fixup_inserted_separator();
-    }
 
-    else if (ch == IpV4::octet_separator)
+    else if (removed && ch == IpV4::octet_separator)
     { // is separator removed
         result.val = m_prev.val;
         result.pos += remove_dir == Backward ? 0 : 1;
     }
 
-    else if (result.val == "...")
+    else if (removed && result.val == "...")
     { // is last digit removed
         result.val.clear();
     }
