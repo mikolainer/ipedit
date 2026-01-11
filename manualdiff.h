@@ -26,7 +26,7 @@ public:
     
     TextEditState fixup_removed_separator() const;
     TextEditState fixup_inserted_separator() const;
-    TextEditState fixup_inserted_digit() const;
+    TextEditState fixup_inserted_zero() const;
     TextEditState fixup_empty_field() const;
     
     bool is_insert_insignificant_zero() const;

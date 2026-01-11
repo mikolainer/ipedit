@@ -29,7 +29,7 @@ void TextEditState::fixup_manual_changes(const TextEditState &prev)
     
     *this = ManualDiff(prev, *this).fixup_removed_separator();
     *this = ManualDiff(prev, *this).fixup_inserted_separator();
-    *this = ManualDiff(prev, *this).fixup_inserted_digit();
+    *this = ManualDiff(prev, *this).fixup_inserted_zero();
     *this = ManualDiff(prev, *this).fixup_empty_field();
 }
 

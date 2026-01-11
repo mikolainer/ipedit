@@ -98,24 +98,20 @@ TextEditState ManualDiff::fixup_inserted_separator() const
     return result;
 }
 
-TextEditState ManualDiff::fixup_inserted_digit() const
+TextEditState ManualDiff::fixup_inserted_zero() const
 {
     TextEditState result = m_cur;
     
-    if (!inserted || ch == IpV4::octet_separator)
+    if (!inserted || ch != '0')
         return result;
     
     auto it = result.val.begin() + index;
+    auto it_forward = it+1;
+    auto it_backward = (it == result.val.begin()) ? result.val.end() : it-1;
     
-    // forward
-    auto it_f = ch == '0' ? it+1 : result.val.end();
-    
-    // backward
-    auto it_b = (it == result.val.begin()) ? result.val.end() : it-1;
-    
-    if (it_b != result.val.end())
+    if (it_backward != result.val.end())
     {
-        auto i = it_b;
+        auto i = it_backward;
         while (i != result.val.begin() && *i == '0')
             --i;
         
@@ -123,25 +119,25 @@ TextEditState ManualDiff::fixup_inserted_digit() const
             return result;
     }
     
-    while (it_f != result.val.end() || it_b != result.val.end())
+    while (it_forward != result.val.end() || it_backward != result.val.end())
     {
-        if (*it_b != '0')
-            it_b = result.val.end();
+        if (*it_backward != '0')
+            it_backward = result.val.end();
         
-        if (*it_f != '0')
-            it_f = result.val.end();
+        if (*it_forward != '0')
+            it_forward = result.val.end();
         
-        if (it_f != result.val.end())
+        if (it_forward != result.val.end())
         {
             result.pos++;
-            it_f = result.val.erase(it_f);
+            it_forward = result.val.erase(it_forward);
         }
         
-        if (it_b != result.val.end())
+        if (it_backward != result.val.end())
         {
             result.pos--;
-            it_b = result.val.erase(it_b);
-            it_b = (it_b == result.val.begin()) ? result.val.end() : it_b-1;
+            it_backward = result.val.erase(it_backward);
+            it_backward = (it_backward == result.val.begin()) ? result.val.end() : it_backward-1;
         }
     }
     
