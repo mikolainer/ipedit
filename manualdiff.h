@@ -24,7 +24,8 @@ private:
 public:
     ManualDiff(const TextEditState& prev, const TextEditState& cur);
     
-    TextEditState fixup_removed_separator() const;
+    TextEditState fixup_separators_count() const;
+
     TextEditState fixup_inserted_separator() const;
 
     /* move the cursor (0.|0.0.0 -> 0.0|.0.0)
@@ -32,8 +33,7 @@ public:
      */
     TextEditState fixup_inserted_zero() const;
 
-    // clear the text when last digit removed
-    TextEditState fixup_empty_field() const;
+
     
     bool valid() const;
 

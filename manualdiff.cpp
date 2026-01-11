@@ -129,17 +129,6 @@ TextEditState ManualDiff::fixup_inserted_zero() const
     return result;
 }
 
-// clear the text when last digit removed
-TextEditState ManualDiff::fixup_empty_field() const
-{
-    TextEditState result = m_cur;
-    
-    if (removed && result.val == "...")
-        result.val.clear();
-    
-    return result;
-}
-
 bool ManualDiff::valid() const
 {
     return index >= 0;
@@ -187,13 +176,25 @@ ManualDiff::ManualDiff(const TextEditState &prev, const TextEditState &cur)
     init_inserted();
 }
 
-TextEditState ManualDiff::fixup_removed_separator() const
+TextEditState ManualDiff::fixup_separators_count() const
 {
     TextEditState result = m_cur;
-    if (removed && ch == IpV4::octet_separator)
-    {
+
+    if (!removed)
+    {// is not removed
+        return fixup_inserted_separator();
+    }
+
+    else if (ch == IpV4::octet_separator)
+    { // is separator removed
         result.val = m_prev.val;
         result.pos += remove_dir == Backward ? 0 : 1;
     }
+
+    else if (result.val == "...")
+    { // is last digit removed
+        result.val.clear();
+    }
+
     return result;
 }

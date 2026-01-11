@@ -27,10 +27,8 @@ void TextEditState::fixup_manual_changes(const TextEditState &prev)
     if (!ManualDiff(prev, *this).valid())
         return;
     
-    *this = ManualDiff(prev, *this).fixup_removed_separator();
-    *this = ManualDiff(prev, *this).fixup_inserted_separator();
+    *this = ManualDiff(prev, *this).fixup_separators_count();
     *this = ManualDiff(prev, *this).fixup_inserted_zero();
-    *this = ManualDiff(prev, *this).fixup_empty_field();
 }
 
 bool TextEditState::have_invalid_chars() const
