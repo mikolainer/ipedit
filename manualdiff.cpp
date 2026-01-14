@@ -11,15 +11,14 @@ TextEditState ManualDiff::fixup_inserted_separator(bool* is_processed) const
     if (!inserted || inserted_char != IpV4::octet_separator)
         return result;
     
-    auto it = result.val.begin() + inserted_index;
-    
     IpV4Int prev_ip{m_prev.val};
     const bool is_the_first_separator = prev_ip.is_valid();
     if (is_the_first_separator && !prev_ip.can_insert_first_separtor_to(inserted_index))
         throw std::runtime_error("can't fixup the input");
     
+    auto it = result.val.begin() + inserted_index;
     *it = IpV4::octet_separator;
-    if (m_prev.val.count(IpV4::octet_separator) == 0)
+    if (is_the_first_separator || result.val == IpV4::octet_separator)
     {// have no separators
         ++it;
         
@@ -61,8 +60,6 @@ TextEditState ManualDiff::fixup_inserted_separator(bool* is_processed) const
     }
     else
     {// have no separator to move
-        //result.reset(new QValidator::State(Invalid));  // reject the input
-        
         while(it != result.val.end())
             it = result.val.erase(it);
         --result.pos;

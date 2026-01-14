@@ -4,15 +4,14 @@
 
 QString IpV4::fix(const QString &ip_text)
 {
-    int fixes = 0;
     QStringList octets = ip_text.split(IpV4::octet_separator);
     for (QString& octet : octets){
         const bool empty_was_fixed = IpV4::Octet::fix_empty(octet);
-        if (empty_was_fixed) {++fixes; continue;}
+        if (empty_was_fixed) {continue;}
         const bool start_was_fixed = IpV4::Octet::fix_start(octet);
-        if (start_was_fixed) {++fixes; continue;}
+        if (start_was_fixed) {continue;}
     }
-    //return fixes > 0 ? octets.join(IpV4::octet_separator) : ip_text;
+
     return octets.join(IpV4::octet_separator);
 }
 
