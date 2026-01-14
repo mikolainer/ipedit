@@ -24,22 +24,19 @@ private:
 public:
     ManualDiff(const TextEditState& prev, const TextEditState& cur);
     
-    TextEditState fixup_separators_count() const;
-
-    TextEditState fixup_inserted_separator() const;
-
     /* move the cursor (0.|0.0.0 -> 0.0|.0.0)
      * instead inserting invalid zero (0.|0.0.0 -> 0.0|0.0.0)
      */
-    TextEditState fixup_inserted_zero() const;
-
-
+    TextEditState fixup_inserted_zero(bool* is_processed = nullptr) const;
+    TextEditState fixup_separators_count(bool* is_processed = nullptr) const;
     
     bool valid() const;
 
 private:
     void init_removed();
     void init_inserted();
+
+    TextEditState fixup_inserted_separator(bool* is_processed = nullptr) const;
 };
 
 #endif // MANUALDIFF_H

@@ -24,11 +24,15 @@ void TextEditState::fixup_insignificant_zeros()
 
 void TextEditState::fixup_manual_changes(const TextEditState &prev)
 {
-    if (!ManualDiff(prev, *this).valid())
-        return;
-    
-    *this = ManualDiff(prev, *this).fixup_separators_count();
-    *this = ManualDiff(prev, *this).fixup_inserted_zero();
+    ManualDiff manual(prev, *this);
+//    if (!manual.valid())
+//        return;
+
+    bool done = false;
+    *this = manual.fixup_inserted_zero(&done);
+    if (done) return;
+
+    *this = manual.fixup_separators_count(&done);
 }
 
 bool TextEditState::have_invalid_chars() const

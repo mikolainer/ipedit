@@ -2,7 +2,7 @@
 #include "ipv4.h"
 #include "ipv4int.h"
 
-TextEditState ManualDiff::fixup_inserted_separator() const
+TextEditState ManualDiff::fixup_inserted_separator(bool* is_processed) const
 {
     TextEditState result = m_cur;
     const auto inserted_char = ch;
@@ -13,13 +13,10 @@ TextEditState ManualDiff::fixup_inserted_separator() const
     
     auto it = result.val.begin() + inserted_index;
     
-    {
-        IpV4Int prev_ip{m_prev.val};
-        const bool is_the_first_separator = prev_ip.is_valid();
-        if (is_the_first_separator && !prev_ip.can_insert_first_separtor_to(inserted_index))
-            throw std::runtime_error("can't fixup the input");
-    }
-    
+    IpV4Int prev_ip{m_prev.val};
+    const bool is_the_first_separator = prev_ip.is_valid();
+    if (is_the_first_separator && !prev_ip.can_insert_first_separtor_to(inserted_index))
+        throw std::runtime_error("can't fixup the input");
     
     *it = IpV4::octet_separator;
     if (m_prev.val.count(IpV4::octet_separator) == 0)
@@ -71,13 +68,16 @@ TextEditState ManualDiff::fixup_inserted_separator() const
         --result.pos;
     }
     
+    if (is_processed != nullptr)
+        *is_processed = true;
+
     return result;
 }
 
 /* move the cursor (0.|0.0.0 -> 0.0|.0.0)
  * instead inserting invalid zero (0.|0.0.0 -> 0.0|0.0.0)
  */
-TextEditState ManualDiff::fixup_inserted_zero() const
+TextEditState ManualDiff::fixup_inserted_zero(bool* is_processed) const
 {
     TextEditState result = m_cur;
     
@@ -98,10 +98,10 @@ TextEditState ManualDiff::fixup_inserted_zero() const
         &&  // and next digit is last digit in the octet
         (it_next2 == result_val_end || *it_next2 == IpV4::octet_separator)
     )
-
         result.val.erase(it);
-
     
+    if (is_processed != nullptr)
+        *is_processed = true;
     return result;
 }
 
@@ -152,7 +152,7 @@ ManualDiff::ManualDiff(const TextEditState &prev, const TextEditState &cur)
     init_inserted();
 }
 
-TextEditState ManualDiff::fixup_separators_count() const
+TextEditState ManualDiff::fixup_separators_count(bool* is_processed) const
 {
     TextEditState result = m_cur;
 
@@ -169,6 +169,9 @@ TextEditState ManualDiff::fixup_separators_count() const
     { // is last digit removed
         result.val.clear();
     }
+
+    if (is_processed != nullptr)
+        *is_processed = true;
 
     return result;
 }
