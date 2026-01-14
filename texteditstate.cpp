@@ -64,6 +64,31 @@ bool TextEditState::is_invalid() const
     return IpV4Int(text).is_invalid();
 }
 
+void TextEditState::move_separator_to(const int new_separator_pos)
+{
+    val = val.insert(new_separator_pos, QChar(IpV4::octet_separator));
+    auto it = val.begin() + new_separator_pos;
+    pos = new_separator_pos;
+
+    if (new_separator_pos < val.lastIndexOf(IpV4::octet_separator))
+    {// have separator to move
+        ++it; // inserted separator leaved before
+        while(it != val.end())
+        {
+            auto erased_char = *it;
+            it = val.erase(it);
+            if (erased_char == IpV4::octet_separator)
+                break;
+        }
+    }
+    else
+    {// have no separator to move
+        --pos;
+        while(it != val.end())
+            it = val.erase(it);
+    }
+}
+
 QList<int> TextEditState::remove_insignificant_zeros()
 {
     QList<int> removed_indexes;

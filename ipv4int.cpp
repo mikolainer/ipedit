@@ -62,3 +62,39 @@ bool IpV4Int::can_insert_first_separtor_to(const int inserted_index) const
         &&
         value_before_first_dot <= IpV4::Octet::max_value;
 }
+
+QString IpV4Int::insert_separators(const int first_separator_index) const
+{
+    if (m_text.count(IpV4::octet_separator) >= IpV4::norm_separators_count)
+        return m_text;
+
+    QString result = m_text;
+    result.insert(first_separator_index, IpV4::octet_separator);
+
+    auto it = result.begin() + first_separator_index +1;
+    while (result.count(IpV4::octet_separator) < IpV4::norm_separators_count)
+    {
+        int octet_val = 0;
+        while (it != result.end())
+        {
+            const int growed_octet_val = (octet_val * 10) + (it->toLatin1() - '0');
+            if (growed_octet_val > IpV4::Octet::max_value) break;
+            it++;
+            octet_val = growed_octet_val;
+        }
+
+        if (it == result.end())
+        {
+            result.append(IpV4::octet_separator);
+            it = result.end();
+        }
+        else
+        {
+            const auto it_index = std::distance(result.begin(), it);
+            result.insert(it_index, IpV4::octet_separator);
+            it = result.begin() + it_index +1;
+        }
+    }
+
+    return result;
+}

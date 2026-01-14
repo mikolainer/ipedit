@@ -16,6 +16,8 @@ public:
     bool is_prevalid() const;
     bool is_invalid() const;
 
+    void move_separator_to(const int new_separator_pos);
+
 private:
     QList<int> remove_insignificant_zeros();
     void shift_removed_pos(const QList<int>& removed_indexes);

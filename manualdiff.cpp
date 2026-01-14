@@ -10,59 +10,44 @@ TextEditState ManualDiff::fixup_inserted_separator(bool* is_processed) const
     
     if (!inserted || inserted_char != IpV4::octet_separator)
         return result;
-    
-    IpV4Int prev_ip{m_prev.val};
+
+    const IpV4Int prev_ip{m_prev.val};
     const bool is_the_first_separator = prev_ip.is_valid();
-    if (is_the_first_separator && !prev_ip.can_insert_first_separtor_to(inserted_index))
-        throw std::runtime_error("can't fixup the input");
-    
-    auto it = result.val.begin() + inserted_index;
-    *it = IpV4::octet_separator;
-    if (is_the_first_separator || result.val == IpV4::octet_separator)
-    {// have no separators
-        ++it;
-        
-        while (result.val.count(IpV4::octet_separator) < IpV4::norm_separators_count)
-        {
-            int octet_val = 0;
-            while (it != result.val.end())
-            {
-                const int growed_octet_val = (octet_val * 10) + (it->toLatin1() - '0');
-                if (growed_octet_val > IpV4::Octet::max_value) break;
-                it++;
-                octet_val = growed_octet_val;
-            }
-            
-            if (it == result.val.end())
-            {
-                result.val.append(IpV4::octet_separator);
-                it = result.val.end();
-            }
-            else
-            {
-                const auto it_index = std::distance(result.val.begin(), it);
-                result.val.insert(it_index, IpV4::octet_separator);
-                it = result.val.begin() + it_index +1;
-            }
-        }
+
+    if (m_prev.val.isEmpty())
+        result.val = "...";
+
+    else if (is_the_first_separator)
+    {
+        if(prev_ip.can_insert_first_separtor_to(inserted_index))
+            result.val = prev_ip.insert_separators(inserted_index);
+        else
+            throw std::runtime_error("can't fixup the input");
     }
-    
-    else if (inserted_index < result.val.lastIndexOf(IpV4::octet_separator))
-    {// have separator to move
-        ++it; // inserted separator leaved before
-        while(it != result.val.end())
-        {
-            auto erased_char = *it;
-            it = result.val.erase(it);
-            if (erased_char == IpV4::octet_separator)
-                break;
-        }
-    }
+
     else
-    {// have no separator to move
-        while(it != result.val.end())
-            it = result.val.erase(it);
-        --result.pos;
+    {
+        //result = m_prev;
+        //result.move_separator_to(inserted_index);
+
+        auto it = result.val.begin() + inserted_index;
+        if (inserted_index < result.val.lastIndexOf(IpV4::octet_separator))
+        {// have separator to move
+            ++it; // inserted separator leaved before
+            while(it != result.val.end())
+            {
+                auto erased_char = *it;
+                it = result.val.erase(it);
+                if (erased_char == IpV4::octet_separator)
+                    break;
+            }
+        }
+        else
+        {// have no separator to move
+            while(it != result.val.end())
+                it = result.val.erase(it);
+            --result.pos;
+        }
     }
     
     if (is_processed != nullptr)
