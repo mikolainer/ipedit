@@ -14,29 +14,9 @@ TextEditState ManualDiff::fixup_inserted_separator() const
     auto it = result.val.begin() + inserted_index;
     
     {
-        const int octet_max_value_len = QString::number(IpV4::Octet::max_value).length();
         IpV4Int prev_ip{m_prev.val};
-        const QString prev_before_first_dot = m_prev.val.left(inserted_index);
-        ulong prev_before_first_dot_value = prev_before_first_dot.toULong();
-        
-        const int max_ip_len_after_first_dot = (IpV4::norm_octets_count -1) * octet_max_value_len;
-        if (
-            (
-                prev_ip.is_valid()
-                &&
-                (
-                    m_prev.val.length() - inserted_index > max_ip_len_after_first_dot
-                    ||
-                    inserted_index > octet_max_value_len
-                    ||
-                    (
-                        inserted_index == octet_max_value_len
-                        &&
-                        prev_before_first_dot_value > IpV4::Octet::max_value
-                    )
-                )
-            )
-        )
+        const bool is_the_first_separator = prev_ip.is_valid();
+        if (is_the_first_separator && !prev_ip.can_insert_first_separtor_to(inserted_index))
             throw std::runtime_error("can't fixup the input");
     }
     

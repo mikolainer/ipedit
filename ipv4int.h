@@ -11,6 +11,7 @@ public:
     
     bool is_valid() const;
     bool is_invalid() const;
+    bool can_insert_first_separtor_to(const int inserted_index) const;
     
 private:
     const QString m_text;

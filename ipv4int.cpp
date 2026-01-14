@@ -44,3 +44,21 @@ bool IpV4Int::is_invalid() const
     return ok && !m_text.contains(QRegularExpression("\\D")) &&
            (val > max_value || (m_text.startsWith('0') && m_text != "0"));
 }
+
+bool IpV4Int::can_insert_first_separtor_to(const int inserted_index) const
+{
+    if (!is_valid())
+        return false;
+
+    static const int octet_max_value_len = QString::number(IpV4::Octet::max_value).length();
+    static const int max_len_of_text_after_first_dot = (IpV4::norm_octets_count -1) * octet_max_value_len;
+
+    const int text_len_after_first_dot = m_text.length() - inserted_index;
+    const QString text_before_first_dot = m_text.left(inserted_index);
+    const ulong value_before_first_dot = text_before_first_dot.toULong();
+
+    return
+        text_len_after_first_dot <= max_len_of_text_after_first_dot
+        &&
+        value_before_first_dot <= IpV4::Octet::max_value;
+}
