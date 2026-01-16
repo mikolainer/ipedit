@@ -25,14 +25,13 @@ void TextEditState::fixup_insignificant_zeros()
 void TextEditState::fixup_manual_changes(const TextEditState &prev)
 {
     ManualDiff manual(prev, *this);
-//    if (!manual.valid())
-//        return;
+    if (!manual.valid())
+        return;
 
-    bool done = false;
-    *this = manual.fixup_inserted_zero(&done);
-    if (done) return;
-
-    *this = manual.fixup_separators_count(&done);
+    if (manual.inserted && manual.ch == '0')
+        *this = manual.fixup_inserted_zero();
+    else
+        *this = manual.fixup_separators_count();
 }
 
 bool TextEditState::have_invalid_chars() const
@@ -66,26 +65,21 @@ bool TextEditState::is_invalid() const
 
 void TextEditState::move_separator_to(const int new_separator_pos)
 {
-    val = val.insert(new_separator_pos, QChar(IpV4::octet_separator));
-    auto it = val.begin() + new_separator_pos;
-    pos = new_separator_pos;
+    const int last_separator_pos = val.lastIndexOf(IpV4::octet_separator);
 
-    if (new_separator_pos < val.lastIndexOf(IpV4::octet_separator))
-    {// have separator to move
-        ++it; // inserted separator leaved before
-        while(it != val.end())
-        {
-            auto erased_char = *it;
-            it = val.erase(it);
-            if (erased_char == IpV4::octet_separator)
-                break;
-        }
+    if (last_separator_pos < new_separator_pos)
+    {// strip end of last octet
+        val = val.left(new_separator_pos);
+        pos = val.length();
     }
+
     else
-    {// have no separator to move
-        --pos;
-        while(it != val.end())
+    {// cut to the closest separator
+        auto it = val.begin() + new_separator_pos;
+        while(*it != IpV4::octet_separator)
             it = val.erase(it);
+
+        pos = new_separator_pos+1;
     }
 }
 

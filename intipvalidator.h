@@ -31,7 +31,7 @@ private:
     void update(const QLineEdit& edit);
 
 private:
-    TextChangeHistory m_text;
+    TextChangeHistory m_history;
 };
 
 #endif // INTIPVALIDATOR_H

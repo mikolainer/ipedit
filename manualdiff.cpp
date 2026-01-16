@@ -2,14 +2,14 @@
 #include "ipv4.h"
 #include "ipv4int.h"
 
-TextEditState ManualDiff::fixup_inserted_separator(bool* is_processed) const
+TextEditState ManualDiff::fixup_inserted_separator() const
 {
     TextEditState result = m_cur;
     const auto inserted_char = ch;
     const int inserted_index = index;
     
     if (!inserted || inserted_char != IpV4::octet_separator)
-        return result;
+        throw std::runtime_error("can't fixup the input");
 
     const IpV4Int prev_ip{m_prev.val};
     const bool is_the_first_separator = prev_ip.is_valid();
@@ -19,39 +19,17 @@ TextEditState ManualDiff::fixup_inserted_separator(bool* is_processed) const
 
     else if (is_the_first_separator)
     {
-        if(prev_ip.can_insert_first_separtor_to(inserted_index))
-            result.val = prev_ip.insert_separators(inserted_index);
-        else
+        if(!prev_ip.can_insert_first_separtor_to(inserted_index))
             throw std::runtime_error("can't fixup the input");
+
+        result.val = prev_ip.insert_separators(inserted_index);
     }
 
     else
     {
-        //result = m_prev;
-        //result.move_separator_to(inserted_index);
-
-        auto it = result.val.begin() + inserted_index;
-        if (inserted_index < result.val.lastIndexOf(IpV4::octet_separator))
-        {// have separator to move
-            ++it; // inserted separator leaved before
-            while(it != result.val.end())
-            {
-                auto erased_char = *it;
-                it = result.val.erase(it);
-                if (erased_char == IpV4::octet_separator)
-                    break;
-            }
-        }
-        else
-        {// have no separator to move
-            while(it != result.val.end())
-                it = result.val.erase(it);
-            --result.pos;
-        }
+        result = m_prev;
+        result.move_separator_to(inserted_index);
     }
-    
-    if (is_processed != nullptr)
-        *is_processed = true;
 
     return result;
 }
@@ -59,12 +37,12 @@ TextEditState ManualDiff::fixup_inserted_separator(bool* is_processed) const
 /* move the cursor (0.|0.0.0 -> 0.0|.0.0)
  * instead inserting invalid zero (0.|0.0.0 -> 0.0|0.0.0)
  */
-TextEditState ManualDiff::fixup_inserted_zero(bool* is_processed) const
+TextEditState ManualDiff::fixup_inserted_zero() const
 {
     TextEditState result = m_cur;
     
     if (!inserted || ch != '0')
-        return result;
+        throw std::runtime_error("can't fixup the input");
     
     const auto result_val_beg = result.val.begin();
     const auto result_val_end = result.val.end();
@@ -81,9 +59,7 @@ TextEditState ManualDiff::fixup_inserted_zero(bool* is_processed) const
         (it_next2 == result_val_end || *it_next2 == IpV4::octet_separator)
     )
         result.val.erase(it);
-    
-    if (is_processed != nullptr)
-        *is_processed = true;
+
     return result;
 }
 
@@ -134,26 +110,21 @@ ManualDiff::ManualDiff(const TextEditState &prev, const TextEditState &cur)
     init_inserted();
 }
 
-TextEditState ManualDiff::fixup_separators_count(bool* is_processed) const
+TextEditState ManualDiff::fixup_separators_count() const
 {
     TextEditState result = m_cur;
 
-    if (inserted)
+    if (inserted && ch == IpV4::octet_separator)
         return fixup_inserted_separator();
 
     else if (removed && ch == IpV4::octet_separator)
-    { // is separator removed
+    {
         result.val = m_prev.val;
         result.pos += remove_dir == Backward ? 0 : 1;
     }
 
-    else if (removed && result.val == "...")
-    { // is last digit removed
+    else if (removed && ch != IpV4::octet_separator && result.val == "...")
         result.val.clear();
-    }
-
-    if (is_processed != nullptr)
-        *is_processed = true;
 
     return result;
 }

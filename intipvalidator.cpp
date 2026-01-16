@@ -30,13 +30,13 @@ void IntIpValidator::set_to(QLineEdit *editor){
 QValidator::State IntIpValidator::validate(QString &text, int &pos) const
 {
     try{
-        const TextEditState previous_state = m_text.cur_state();
+        const TextEditState previous_state = m_history.cur_state();
         const TextEditState current_state{text, pos};
         const TextEditState new_state = IpChangeAnalyzer::prepare_new_state(previous_state, current_state);
 
         text = new_state.val;
         pos = new_state.pos;
-        const_cast<TextChangeHistory&>(m_text).update(text, pos);
+        const_cast<TextChangeHistory&>(m_history).update(text, pos);
 
         IpV4 ip{text};
         return ip.is_valid() ? Acceptable : Intermediate;
@@ -62,12 +62,12 @@ void IntIpValidator::fixup(QString &text) const {
 
 void IntIpValidator::update(const int &pos)
 {
-    m_text.update(pos);
+    m_history.update(pos);
 }
 
 void IntIpValidator::update(const QLineEdit &edit)
 {
-    m_text.update(edit);
+    m_history.update(edit);
 }
 
 TextEditState IpChangeAnalyzer::prepare_new_state(const TextEditState &prev, const TextEditState &cur)
