@@ -1,18 +1,13 @@
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#pragma once
 
 #include <QWidget>
 #include <QVBoxLayout>
-
-#include "testrunner.h"
 #include "intipvalidator.h"
 
 class MainWindow : public QWidget
 { Q_OBJECT
 public:
     MainWindow() : QWidget() {
-        {DirtyTestRunner();}
-
         auto main_lay = new QVBoxLayout(this);
 
         auto ip_edit = new QLineEdit(this);
@@ -23,4 +18,3 @@ public:
 
     }
 };
-#endif // MAINWINDOW_H

@@ -3,8 +3,9 @@
 
 #include <QValidator>
 
-#include "textchangehistory.h"
+#include "global.h"
 #include "texteditstate.h"
+#include "textchangehistory.h"
 
 class QLineEdit;
 
@@ -14,7 +15,7 @@ public:
     static TextEditState prepare_new_state(const TextEditState& prev, const TextEditState& cur);
 };
 
-class IntIpValidator : public QValidator
+class LIB_EXPORT IntIpValidator : public QValidator
 { Q_OBJECT
 
 private:

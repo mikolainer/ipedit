@@ -1,5 +1,5 @@
-#include "mainwindow.h"
 #include "oneclick_testfactory.h"
+#include <intipvalidator.h>
 
 void IpEditTestHelper::start_edit(int cursor_pos){
     setFocus();

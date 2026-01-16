@@ -4,16 +4,10 @@
 #include "test_ip_edit.h"
 #include "test_oneclick_testfactory.h"
 
-class DirtyTestRunner
+class TestRunner
 {
 public:
-    DirtyTestRunner()
-    {
-        run_all();
-    }
-
-private:
-    void run_all()
+    static void run_all()
     {
         {
             auto test = Test_OneClickHelpers();
