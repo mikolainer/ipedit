@@ -14,9 +14,9 @@ This library provides a QLineEdit wrapper for comfortable entering an IP v4 or a
 Ipedit is DLL. `IpIntIpValidator` is a `QValidator`. You can use `static void IpIntIpValidator::set_to(QLineEdit* editor = nullptr)` method to set the validator for any `QLineEdit`. Note that the text value should be setted after setting of the validator.
 
 # Info
-State: MVP
-Tested env: Qt 6.10.0 MinGW x64 windows kit
-Tested cases: manual input by typing without the text selection
+State: MVP;
+Tested env: Qt 6.10.0 MinGW x64 windows kit;
+Tested cases: manual input by typing without the text selection;
 
 # Intentions to improve
 - add some tests to check manual input by typing with the text selection
