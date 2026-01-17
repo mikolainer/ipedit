@@ -1,0 +1,27 @@
+# Overview
+This library provides a QLineEdit wrapper for comfortable entering an IP v4 or an integer that should be converted to an IP v4.
+
+# Main features
+- keep valid count of separators (0 or 3)
+- move cursor position when you try to remove separator
+- remove all separators when the last digit removed
+- insert all separators when the firts separator added
+- convert int to IPv4
+- clear end of octet by entering octet separator
+- different ways to add separator
+
+# Description
+Ipedit is DLL. `IpIntIpValidator` is a `QValidator`. You can use `static void IpIntIpValidator::set_to(QLineEdit* editor = nullptr)` method to set the validator for any `QLineEdit`. Note that the text value should be setted after setting of the validator.
+
+# Info
+State: MVP
+Tested env: Qt 6.10.0 MinGW x64 windows kit
+Tested cases: manual input by typing without the text selection
+
+# Intentions to improve
+- add some tests to check manual input by typing with the text selection
+- add some tests to check complex changes like inserting from buffer
+- make new tests passed
+- check other kits to build (compiler, Qt versions, other IDEs)
+- make a wrapper on `QLineEdit` with no inheriting to make the library more safety to use
+- make a tooltip with an integer presentation of IP v4
