@@ -2,7 +2,7 @@
 This library provides a QLineEdit wrapper for comfortable entering an IP v4 or an integer that should be converted to an IP v4.
 
 # Downloads
-[DEMO](https://github.com/mikolainer/ipedit/blob/main/bin/ipedit.zip)
+You can get built demo app from `bin` directory
 
 # Main features
 - keep valid count of separators (0 or 3)
