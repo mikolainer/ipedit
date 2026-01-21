@@ -26,3 +26,4 @@ Tested cases: manual input by typing without the text selection;
 - add some tests to check complex changes like inserting from buffer
 - make new tests passed
 - check other kits to build (compiler, Qt versions, other IDEs)
+- make the cursor movable between octets by tab
