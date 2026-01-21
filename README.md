@@ -5,12 +5,12 @@ This library provides a QLineEdit wrapper for comfortable entering an IP v4 or a
 You can get built demo app from `bin` directory
 
 # Main features
-- keep valid count of separators (0 or 3)
-- move cursor position when you try to remove separator
+- keep valid count of the separators (0 or 3)
+- move the cursor position when you try to remove a separator
 - remove all separators when the last digit removed
 - insert all separators when the firts separator added
 - convert int to IPv4
-- clear end of octet by entering octet separator
+- clear end of the octet by entering octet separator
 - different ways to add separator
 
 # Description
@@ -26,5 +26,3 @@ Tested cases: manual input by typing without the text selection;
 - add some tests to check complex changes like inserting from buffer
 - make new tests passed
 - check other kits to build (compiler, Qt versions, other IDEs)
-- make a wrapper on `QLineEdit` with no inheriting to make the library more safety to use
-- make a tooltip with an integer presentation of IP v4
