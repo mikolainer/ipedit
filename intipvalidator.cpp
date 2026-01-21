@@ -1,5 +1,5 @@
-
 #include "intipvalidator.h"
+#include "intipv4calculator.h"
 
 #include <QLineEdit>
 
@@ -55,7 +55,7 @@ void IntIpValidator::fixup(QString &text) const {
 
     const IpV4Int int_ip = {text};
     if (int_ip.is_valid())
-        text = int_ip.to_ipv4();
+        text = IntIpV4Calculator::to_ipv4(text);
     else
         text = IpV4::fix(text);
 }
