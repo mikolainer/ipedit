@@ -14,7 +14,7 @@ You can get built demo app from `bin` directory
 - different ways to add separator
 
 # Description
-Ipedit is DLL. `IpIntIpValidator` is a `QValidator`. You can use `static void IpIntIpValidator::set_to(QLineEdit* editor = nullptr)` method to set the validator for any `QLineEdit`. Note that the text value should be setted after setting of the validator.
+You can just make instance of `IntIpEdit`. This is the preferred and safest way to use this library. But there are another way to do it. If you need to keep using `QLineEdit`, you can use`static void IpIntIpValidator::set_to(QLineEdit* editor = nullptr)` method to set the validator for any `QLineEdit`. Note that the text value should be setted after setting of the validator.
 
 # Info
 State: MVP;
